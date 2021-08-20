@@ -10,6 +10,7 @@
 
 #define BRAVE_COOKIE_SETTINGS_GET_COOKIE_SETTINGS_INTERNAL    \
   if (cookie_setting == CONTENT_SETTING_SESSION_ONLY &&       \
+      IsExplicitSetting(*entry) &&                            \
       base::FeatureList::IsEnabled(                           \
           net::features::kBraveFirstPartyEphemeralStorage)) { \
     /* Do nothing */                                          \
@@ -67,6 +68,33 @@ bool CookieSettings::AnnotateAndMoveUserBlockedEphemeralCookies(
   return AnnotateAndMoveUserBlockedCookies(
       url, site_for_cookies, top_frame_origin, maybe_included_cookies,
       excluded_cookies);
+}
+
+ContentSetting CookieSettings::GetDetailedCookieSetting(
+    const GURL& url,
+    bool* is_shields_disable_rule) const {
+  if (ShouldAlwaysAllowCookies(url, url)) {
+    return CONTENT_SETTING_ALLOW;
+  }
+
+  // Default to allowing cookies.
+  ContentSetting cookie_setting = CONTENT_SETTING_ALLOW;
+  const auto& entry = base::ranges::find_if(
+      content_settings_, [&](const ContentSettingPatternSource& entry) {
+        return entry.primary_pattern.Matches(url) &&
+               entry.secondary_pattern.Matches(url);
+      });
+
+  if (entry != content_settings_.end()) {
+    cookie_setting = entry->GetContentSetting();
+    if (is_shields_disable_rule) {
+      *is_shields_disable_rule = cookie_setting == CONTENT_SETTING_ALLOW &&
+                                 entry->primary_pattern.MatchesAllHosts() &&
+                                 !entry->secondary_pattern.MatchesAllHosts();
+    }
+  }
+
+  return cookie_setting;
 }
 
 }  // namespace network

@@ -10,6 +10,8 @@
 
 #define BRAVE_COOKIE_SETTINGS_GET_COOKIES_SETTINGS_INTERNAL      \
   if (setting == CONTENT_SETTING_SESSION_ONLY && !block_third && \
+      (!info.primary_pattern.MatchesAllHosts() ||                \
+       !info.secondary_pattern.MatchesAllHosts()) &&             \
       ShouldBlockThirdPartyCookies() &&                          \
       !first_party_url.SchemeIs(extension_scheme_) &&            \
       base::FeatureList::IsEnabled(                              \
@@ -83,6 +85,28 @@ std::vector<url::Origin> CookieSettings::TakeEphemeralStorageOpaqueOrigins(
   return result;
 }
 
-}  // namespace content_settings
+ContentSetting CookieSettings::GetDetailedCookieSetting(
+    const GURL& url,
+    bool* is_shields_disable_rule) const {
+  if (ShouldAlwaysAllowCookies(url, url)) {
+    return CONTENT_SETTING_ALLOW;
+  }
 
-#undef BRAVE_COOKIE_SETTINGS_GET_COOKIES_SETTINGS_INTERNAL
+  SettingInfo info;
+  std::unique_ptr<base::Value> value =
+      host_content_settings_map_->GetWebsiteSetting(
+          url, url, ContentSettingsType::COOKIES, &info);
+  DCHECK(value);
+
+  ContentSetting cookie_setting = ValueToContentSetting(value.get());
+
+  if (is_shields_disable_rule) {
+    *is_shields_disable_rule = cookie_setting == CONTENT_SETTING_ALLOW &&
+                               info.primary_pattern.MatchesAllHosts() &&
+                               !info.secondary_pattern.MatchesAllHosts();
+  }
+
+  return cookie_setting;
+}
+
+}  // namespace content_settings

@@ -169,18 +169,31 @@ bool CookieSettingsBase::IsCookieAccessAllowedImpl(
 
   const GURL first_party_url = GetFirstPartyURL(
       site_for_cookies, base::OptionalOrNullptr(top_frame_origin));
-  const bool is_1p_ephemeral =
-      is_1p_ephemeral_feature_enabled && IsCookieSessionOnly(first_party_url);
 
-  if (is_1p_ephemeral && allow) {
-    return false;
+  bool are_first_party_shields_disabled = false;
+  if (allow && is_1p_ephemeral_feature_enabled) {
+    const bool is_1p_ephemeral =
+        GetDetailedCookieSetting(first_party_url,
+                                 &are_first_party_shields_disabled) ==
+        CONTENT_SETTING_SESSION_ONLY;
+    // Block all non ephemeral activities (service workers, etc.) if 1p is
+    // ephemeral.
+    return !is_1p_ephemeral;
   }
+
+  DCHECK(!allow);
 
   if (!IsFirstPartyAccessAllowed(first_party_url, this))
     return false;
 
   if (BraveIsAllowedThirdParty(url, first_party_url, this))
     return true;
+
+  if (is_1p_ephemeral_feature_enabled && are_first_party_shields_disabled &&
+      IsCookieSessionOnly(url)) {
+    // Allow 3p session-only frames as is when shields are disabled.
+    return true;
+  }
 
   return false;
 }

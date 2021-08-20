@@ -10,6 +10,7 @@
 
 #include "base/containers/flat_map.h"
 #include "components/content_settings/core/browser/content_settings_provider.h"
+#include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/keyed_service/core/refcounted_keyed_service.h"
 #include "url/origin.h"
 
@@ -21,6 +22,8 @@
       url::Origin& storage_origin);                                          \
   std::vector<url::Origin> TakeEphemeralStorageOpaqueOrigins(                \
       const std::string& ephemeral_storage_domain);                          \
+  ContentSetting GetDetailedCookieSetting(                                   \
+      const GURL& url, bool* is_shields_disable_rule) const override;        \
                                                                              \
  private:                                                                    \
   /* Ephemeral storage domain to non_opaque->opaque origins map. */          \

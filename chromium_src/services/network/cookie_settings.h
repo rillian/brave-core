@@ -11,13 +11,15 @@
       const net::CanonicalCookie& cookie, const GURL& url,        \
       const GURL& site_for_cookies,                               \
       const absl::optional<url::Origin>& top_frame_origin) const; \
+  ContentSetting GetDetailedCookieSetting(                            \
+      const GURL& url, bool* is_shields_disable_rule) const override; \
   bool IsCookieAccessible
 
-#define IsPrivacyModeEnabled                                      \
-  IsEphemeralPrivacyModeEnabled(                                  \
-      const GURL& url, const GURL& site_for_cookies,              \
-      const absl::optional<url::Origin>& top_frame_origin,        \
-      net::SamePartyContext::Type same_party_context_type) const; \
+#define IsPrivacyModeEnabled                                             \
+  IsEphemeralPrivacyModeEnabled(                                         \
+      const GURL& url, const GURL& site_for_cookies,                     \
+      const absl::optional<url::Origin>& top_frame_origin,               \
+      net::SamePartyContext::Type same_party_cookie_context_type) const; \
   bool IsPrivacyModeEnabled
 
 #define AnnotateAndMoveUserBlockedCookies                   \
