@@ -1,5 +1,5 @@
 diff --git a/content/browser/devtools/protocol/network_handler.cc b/content/browser/devtools/protocol/network_handler.cc
-index 54b80ef80f263a1f131d5a0e8beaaf90db318d4d..06add0fd8b3c6043ecb84135fadee9a26f8f2bc6 100644
+index 54b80ef80f263a1f131d5a0e8beaaf90db318d4d..d1e0793955df3a85d30362911840891d60fd8430 100644
 --- a/content/browser/devtools/protocol/network_handler.cc
 +++ b/content/browser/devtools/protocol/network_handler.cc
 @@ -198,10 +198,12 @@ class CookieRetrieverNetworkService
@@ -27,7 +27,7 @@ index 54b80ef80f263a1f131d5a0e8beaaf90db318d4d..06add0fd8b3c6043ecb84135fadee9a2
  
    CookieRetrieverNetworkService::Retrieve(
        storage_partition_->GetCookieManagerForBrowserProcess(), urls,
-+      BRAVE_NETWORK_HANDLER_GET_COOKIES_RETREIVE_CALL_ARGS
++      BRAVE_NETWORK_HANDLER_GET_COOKIES_RETRIEVE_CALL_ARGS
        std::move(callback));
  }
  
