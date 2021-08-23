@@ -8,11 +8,22 @@
 
 #include "bat/ads/internal/ad_events/ad_event_info.h"
 
+#include "base/time/time.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
+
 namespace ads {
 
 struct AdInfo;
+struct CreativeAdInfo;
 
 bool HasFiredAdViewedEvent(const AdInfo& ad, const AdEventList& ad_events);
+
+absl::optional<base::Time> GetLastSeenAdTime(const AdEventList& ad_events,
+                                             const CreativeAdInfo& creative_ad);
+
+absl::optional<base::Time> GetLastSeenAdvertiserTime(
+    const AdEventList& ad_events,
+    const CreativeAdInfo& creative_ad);
 
 }  // namespace ads
 
