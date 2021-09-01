@@ -293,6 +293,9 @@ public class BytecodeTest {
         Assert.assertTrue(
                 methodExists("org/chromium/chrome/browser/feed/BraveFeedSurfaceCoordinator",
                         "isReliabilityLoggingEnabled", false, null));
+        Assert.assertTrue(
+                methodExists("org/chromium/components/browser_ui/site_settings/ContentSettingsResources",
+                        "getResourceItem", false, null));
     }
 
     @Test
