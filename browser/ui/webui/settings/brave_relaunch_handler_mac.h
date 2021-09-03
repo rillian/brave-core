@@ -20,7 +20,7 @@ class BraveRelaunchHandler : public settings::SettingsPageUIHandler {
   void OnJavascriptAllowed() override {}
   void OnJavascriptDisallowed() override {}
 
-  void Relaunch(const base::ListValue* args);
+  void Relaunch(base::Value::ConstListView args);
 
   DISALLOW_COPY_AND_ASSIGN(BraveRelaunchHandler);
 };
