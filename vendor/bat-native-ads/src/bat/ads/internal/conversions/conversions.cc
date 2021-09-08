@@ -16,6 +16,7 @@
 #include "bat/ads/internal/ad_events/ad_events.h"
 #include "bat/ads/internal/ads_client_helper.h"
 #include "bat/ads/internal/conversions/conversion_queue_item_info.h"
+#include "bat/ads/internal/conversions/conversions_observer.h"
 #include "bat/ads/internal/conversions/sorts/conversions_sort.h"
 #include "bat/ads/internal/conversions/sorts/conversions_sort_factory.h"
 #include "bat/ads/internal/conversions/verifiable_conversion_info.h"
@@ -385,6 +386,8 @@ void Conversions::AddItemToQueue(
   conversion_queue_item.conversion_id = verifiable_conversion.id;
   conversion_queue_item.advertiser_public_key =
       verifiable_conversion.public_key;
+  conversion_queue_item.ad_type = ad_event.type;
+  conversion_queue_item.confirmation_type = ad_event.confirmation_type;
   const int64_t rand_delay = brave_base::random::Geometric(
       g_is_debug ? kDebugConvertAfterSeconds : kConvertAfterSeconds);
   conversion_queue_item.timestamp =

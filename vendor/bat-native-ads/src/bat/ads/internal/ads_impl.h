@@ -92,6 +92,7 @@ struct ConversionQueueItemInfo;
 struct InlineContentAdInfo;
 struct NewTabPageAdInfo;
 struct PromotedContentAdInfo;
+struct WalletInfo;
 
 class AdsImpl : public Ads,
                 public AccountObserver,
@@ -116,7 +117,7 @@ class AdsImpl : public Ads,
 
   bool IsInitialized() const;
 
-  // Ads implementation
+  // Ads:
   void Initialize(InitializeCallback callback) override;
 
   void Shutdown(ShutdownCallback callback) override;
@@ -195,14 +196,8 @@ class AdsImpl : public Ads,
 
   void GetAdDiagnostics(GetAdDiagnosticsCallback callback) override;
 
-  AdContentInfo::LikeAction ToggleAdThumbUp(
-      const std::string& creative_instance_id,
-      const std::string& creative_set_id,
-      const AdContentInfo::LikeAction& action) override;
-  AdContentInfo::LikeAction ToggleAdThumbDown(
-      const std::string& creative_instance_id,
-      const std::string& creative_set_id,
-      const AdContentInfo::LikeAction& action) override;
+  AdContentInfo::LikeAction ToggleAdThumbUp(const std::string& json) override;
+  AdContentInfo::LikeAction ToggleAdThumbDown(const std::string& json) override;
   CategoryContentInfo::OptAction ToggleAdOptInAction(
       const std::string& category,
       const CategoryContentInfo::OptAction& action) override;
@@ -275,19 +270,19 @@ class AdsImpl : public Ads,
 
   void MaybeTopUpUnblindedTokens();
 
-  // AccountObserver implementation
+  // AccountObserver:
   void OnWalletDidUpdate(const WalletInfo& wallet) override;
   void OnWalletDidChange(const WalletInfo& wallet) override;
   void OnInvalidWallet() override;
   void OnStatementOfAccountsDidChange() override;
 
-  // AdServerObserver implementation
+  // AdServerObserver:
   void OnCatalogUpdated(const Catalog& catalog) override;
 
-  // AdNotificationServingObserver implementation
+  // AdNotificationServingObserver:
   void OnDidServeAdNotification(const AdNotificationInfo& ad) override;
 
-  // AdNotificationObserver implementation
+  // AdNotificationObserver:
   void OnAdNotificationViewed(const AdNotificationInfo& ad) override;
   void OnAdNotificationClicked(const AdNotificationInfo& ad) override;
   void OnAdNotificationDismissed(const AdNotificationInfo& ad) override;
@@ -296,7 +291,7 @@ class AdsImpl : public Ads,
       const std::string& uuid,
       const mojom::AdNotificationEventType event_type) override;
 
-  // NewTabPageAdObserver implementation
+  // NewTabPageAdObserver:
   void OnNewTabPageAdViewed(const NewTabPageAdInfo& ad) override;
   void OnNewTabPageAdClicked(const NewTabPageAdInfo& ad) override;
   void OnNewTabPageAdEventFailed(
@@ -304,7 +299,7 @@ class AdsImpl : public Ads,
       const std::string& creative_instance_id,
       const mojom::NewTabPageAdEventType event_type) override;
 
-  // PromotedContentAdObserver implementation
+  // PromotedContentAdObserver:
   void OnPromotedContentAdViewed(const PromotedContentAdInfo& ad) override;
   void OnPromotedContentAdClicked(const PromotedContentAdInfo& ad) override;
   void OnPromotedContentAdEventFailed(
@@ -312,10 +307,10 @@ class AdsImpl : public Ads,
       const std::string& creative_instance_id,
       const mojom::PromotedContentAdEventType event_type) override;
 
-  // InlineContentAdServingObserver implementation
+  // InlineContentAdServingObserver:
   void OnDidServeInlineContentAd(const InlineContentAdInfo& ad) override;
 
-  // InlineContentAdObserver implementation
+  // InlineContentAdObserver:
   void OnInlineContentAdViewed(const InlineContentAdInfo& ad) override;
   void OnInlineContentAdClicked(const InlineContentAdInfo& ad) override;
   void OnInlineContentAdEventFailed(
@@ -323,13 +318,13 @@ class AdsImpl : public Ads,
       const std::string& creative_instance_id,
       const mojom::InlineContentAdEventType event_type) override;
 
-  // AdTransferObserver implementation
+  // AdTransferObserver:
   void OnWillTransferAd(const AdInfo& ad, const base::Time& time) override;
   void OnDidTransferAd(const AdInfo& ad) override;
   void OnCancelledAdTransfer(const AdInfo& ad, const int32_t tab_id) override;
   void OnFailedToTransferAd(const AdInfo& ad) override;
 
-  // ConversionsObserver implementation
+  // ConversionsObserver:
   void OnConversion(
       const ConversionQueueItemInfo& conversion_queue_item) override;
 };

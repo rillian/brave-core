@@ -12,6 +12,7 @@
 #include "bat/ads/ad_notification_info.h"
 #include "bat/ads/ad_type.h"
 #include "bat/ads/internal/ad_delivery/ad_notifications/ad_notification_delivery.h"
+#include "bat/ads/internal/ad_serving/ad_notifications/ad_notification_serving_observer.h"
 #include "bat/ads/internal/ad_serving/ad_targeting/geographic/subdivision/subdivision_targeting.h"
 #include "bat/ads/internal/ad_targeting/ad_targeting.h"
 #include "bat/ads/internal/ad_targeting/ad_targeting_user_model_builder.h"
@@ -41,13 +42,8 @@ constexpr base::TimeDelta kRetryServingAdAtNextInterval =
 AdServing::AdServing(
     ad_targeting::geographic::SubdivisionTargeting* subdivision_targeting,
     resource::AntiTargeting* anti_targeting_resource)
-    : subdivision_targeting_(subdivision_targeting),
-      anti_targeting_resource_(anti_targeting_resource),
-      eligible_ads_(std::make_unique<EligibleAds>(subdivision_targeting,
-                                                  anti_targeting_resource)) {
-  DCHECK(subdivision_targeting_);
-  DCHECK(anti_targeting_resource_);
-}
+    : eligible_ads_(std::make_unique<EligibleAds>(subdivision_targeting,
+                                                  anti_targeting_resource)) {}
 
 AdServing::~AdServing() = default;
 
@@ -109,7 +105,6 @@ void AdServing::MaybeServeAd() {
 
   const ad_targeting::UserModelInfo user_model = ad_targeting::BuildUserModel();
 
-  DCHECK(eligible_ads_);
   eligible_ads_->Get(user_model, [=](const bool was_allowed,
                                      const CreativeAdNotificationList& ads) {
     if (was_allowed) {

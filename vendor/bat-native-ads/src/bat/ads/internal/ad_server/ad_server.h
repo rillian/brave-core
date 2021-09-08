@@ -6,13 +6,14 @@
 #ifndef BRAVE_VENDOR_BAT_NATIVE_ADS_SRC_BAT_ADS_INTERNAL_AD_SERVER_AD_SERVER_H_
 #define BRAVE_VENDOR_BAT_NATIVE_ADS_SRC_BAT_ADS_INTERNAL_AD_SERVER_AD_SERVER_H_
 
-#include "bat/ads/internal/ad_server/ad_server_observer.h"
+#include "base/observer_list.h"
 #include "bat/ads/internal/backoff_timer.h"
 #include "bat/ads/internal/timer.h"
 #include "bat/ads/public/interfaces/ads.mojom.h"
 
 namespace ads {
 
+class AdServerObserver;
 class Catalog;
 
 class AdServer {

@@ -6,7 +6,7 @@
 #ifndef BRAVE_VENDOR_BAT_NATIVE_ADS_SRC_BAT_ADS_INTERNAL_ACCOUNT_ACCOUNT_OBSERVER_H_
 #define BRAVE_VENDOR_BAT_NATIVE_ADS_SRC_BAT_ADS_INTERNAL_ACCOUNT_ACCOUNT_OBSERVER_H_
 
-#include "base/observer_list.h"
+#include "base/observer_list_types.h"
 
 namespace ads {
 
@@ -24,9 +24,8 @@ class AccountObserver : public base::CheckedObserver {
   // Invoked if the wallet is invalid
   virtual void OnInvalidWallet() {}
 
-  // Invoked when the catalog issuers have changed
-  virtual void OnCatalogIssuersDidChange(
-      const CatalogIssuersInfo& catalog_issuers) {}
+  // Invoked when the issuers have changed
+  virtual void OnIssuersDidChange( const IssuersInfo& issuers) {}
 
   // Invoked when the statement of accounts has changed
   virtual void OnStatementOfAccountsDidChange() {}

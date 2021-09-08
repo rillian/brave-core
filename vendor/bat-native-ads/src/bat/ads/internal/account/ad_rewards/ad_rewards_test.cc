@@ -28,7 +28,7 @@ TEST_F(BatAdsAdRewardsIntegrationTest,
        GetAdRewardsIfGetPaymentsEndPointReturnsEqualBalance) {
   // Arrange
   const URLEndpoints endpoints = {
-      {"/v1/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
+      {"/v2/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
        {{net::HTTP_OK,
          R"([
               {
@@ -71,7 +71,7 @@ TEST_F(BatAdsAdRewardsIntegrationTest,
        GetAdRewardsIfGetPaymentsEndPointReturnsGreaterBalance) {
   // Arrange
   const URLEndpoints endpoints = {
-      {"/v1/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
+      {"/v2/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
        {{net::HTTP_OK,
          R"([
               {
@@ -114,7 +114,7 @@ TEST_F(BatAdsAdRewardsIntegrationTest,
        GetCachedAdRewardsIfGetPaymentsEndPointReturnsLessBalance) {
   // Arrange
   const URLEndpoints endpoints = {
-      {"/v1/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
+      {"/v2/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
        {{net::HTTP_OK,
          R"([
               {
@@ -156,7 +156,7 @@ TEST_F(BatAdsAdRewardsIntegrationTest,
 TEST_F(BatAdsAdRewardsIntegrationTest, GetAdRewardsForMultipleBalances) {
   // Arrange
   const URLEndpoints endpoints = {
-      {"/v1/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
+      {"/v2/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
        {{net::HTTP_OK,
          R"([
               {
@@ -202,7 +202,7 @@ TEST_F(BatAdsAdRewardsIntegrationTest,
        GetCachedAdRewardsIfGetPaymentsEndPointReturnsNonHttpOk) {
   // Arrange
   const URLEndpoints endpoints = {
-      {"/v1/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
+      {"/v2/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
        {{net::HTTP_INTERNAL_SERVER_ERROR, ""}}}};
 
   MockUrlRequest(ads_client_mock_, endpoints);

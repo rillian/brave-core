@@ -24,7 +24,7 @@ PaymentsUrlRequestBuilder::PaymentsUrlRequestBuilder(const WalletInfo& wallet)
 
 PaymentsUrlRequestBuilder::~PaymentsUrlRequestBuilder() = default;
 
-// GET /v1/confirmation/payment/{payment_id}
+// GET /v2/confirmation/payment/{payment_id}
 
 mojom::UrlRequestPtr PaymentsUrlRequestBuilder::Build() {
   mojom::UrlRequestPtr url_request = mojom::UrlRequest::New();
@@ -39,7 +39,7 @@ mojom::UrlRequestPtr PaymentsUrlRequestBuilder::Build() {
 ///////////////////////////////////////////////////////////////////////////////
 
 std::string PaymentsUrlRequestBuilder::BuildUrl() const {
-  return base::StringPrintf("%s/v1/confirmation/payment/%s",
+  return base::StringPrintf("%s/v2/confirmation/payment/%s",
                             confirmations::server::GetHost().c_str(),
                             wallet_.id.c_str());
 }

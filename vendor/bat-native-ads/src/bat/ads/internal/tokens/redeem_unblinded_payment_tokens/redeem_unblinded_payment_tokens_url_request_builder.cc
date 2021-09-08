@@ -11,7 +11,6 @@
 #include "base/json/json_writer.h"
 #include "base/notreached.h"
 #include "base/strings/stringprintf.h"
-#include "bat/ads/internal/logging.h"
 #include "bat/ads/internal/privacy/challenge_bypass_ristretto_util.h"
 #include "bat/ads/internal/server/confirmations_server_util.h"
 #include "bat/ads/internal/server/via_header_util.h"
@@ -35,7 +34,7 @@ RedeemUnblindedPaymentTokensUrlRequestBuilder::
 RedeemUnblindedPaymentTokensUrlRequestBuilder::
     ~RedeemUnblindedPaymentTokensUrlRequestBuilder() = default;
 
-// PUT /v1/confirmation/payment/{payment_id}
+// PUT /v2/confirmation/payment/{payment_id}
 
 mojom::UrlRequestPtr RedeemUnblindedPaymentTokensUrlRequestBuilder::Build() {
   mojom::UrlRequestPtr url_request = mojom::UrlRequest::New();
@@ -52,7 +51,7 @@ mojom::UrlRequestPtr RedeemUnblindedPaymentTokensUrlRequestBuilder::Build() {
 ///////////////////////////////////////////////////////////////////////////////
 
 std::string RedeemUnblindedPaymentTokensUrlRequestBuilder::BuildUrl() const {
-  return base::StringPrintf("%s/v1/confirmation/payment/%s",
+  return base::StringPrintf("%s/v2/confirmation/payment/%s",
                             confirmations::server::GetHost().c_str(),
                             wallet_.id.c_str());
 }
@@ -110,6 +109,13 @@ RedeemUnblindedPaymentTokensUrlRequestBuilder::CreatePaymentRequestDTO(
 
     base::Value credential = CreateCredential(unblinded_token, payload);
     payment_credential.SetKey("credential", base::Value(std::move(credential)));
+
+    payment_credential.SetKey(
+        "creative_type", base::Value(std::string(unblinded_token.ad_type)));
+
+    payment_credential.SetKey(
+        "confirmation_type",
+        base::Value(std::string(unblinded_token.confirmation_type)));
 
     payment_credential.SetKey(
         "publicKey", base::Value(unblinded_token.public_key.encode_base64()));

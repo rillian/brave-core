@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-#include "base/observer_list.h"
+#include "base/observer_list_types.h"
 #include "base/time/time.h"
 
 namespace ads {

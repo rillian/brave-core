@@ -30,7 +30,7 @@ class BatAdsAdRewardsIssue17412IntegrationTest : public UnitTestBase {
 TEST_F(BatAdsAdRewardsIssue17412IntegrationTest, GetAdRewards) {
   // Arrange
   const URLEndpoints endpoints = {
-      {"/v1/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
+      {"/v2/confirmation/payment/c387c2d8-a26d-4451-83e4-5c0c6fd942be",
        {{net::HTTP_OK,
          R"([
               {

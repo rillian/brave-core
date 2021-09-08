@@ -8,12 +8,15 @@
 
 #include <memory>
 
+#include "base/observer_list.h"
 #include "base/time/time.h"
-#include "bat/ads/internal/ad_serving/ad_notifications/ad_notification_serving_observer.h"
 #include "bat/ads/internal/timer.h"
 
 namespace ads {
 
+class AdNotificationObserver;
+class AdNotificationServingObserver;
+struct AdNotificationInfo;
 struct CreativeAdNotificationInfo;
 
 namespace ad_targeting {
@@ -50,11 +53,6 @@ class AdServing {
 
  private:
   Timer timer_;
-
-  ad_targeting::geographic::SubdivisionTargeting*
-      subdivision_targeting_;  // NOT OWNED
-
-  resource::AntiTargeting* anti_targeting_resource_;  // NOT OWNED
 
   std::unique_ptr<EligibleAds> eligible_ads_;
 

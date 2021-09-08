@@ -10,12 +10,14 @@
 #include <string>
 #include <vector>
 
+#include "base/observer_list.h"
 #include "base/time/time.h"
 #include "bat/ads/ad_info.h"
-#include "bat/ads/internal/ad_transfer/ad_transfer_observer.h"
 #include "bat/ads/internal/timer.h"
 
 namespace ads {
+
+class AdTransferObserver;
 
 class AdTransfer {
  public:

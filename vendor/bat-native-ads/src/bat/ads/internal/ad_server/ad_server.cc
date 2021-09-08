@@ -14,11 +14,11 @@
 #include "base/time/time.h"
 #include "bat/ads/ads.h"
 #include "bat/ads/internal/account/confirmations/confirmations.h"
+#include "bat/ads/internal/ad_server/ad_server_observer.h"
 #include "bat/ads/internal/ad_server/get_catalog_url_request_builder.h"
 #include "bat/ads/internal/ads_client_helper.h"
 #include "bat/ads/internal/bundle/bundle.h"
 #include "bat/ads/internal/catalog/catalog.h"
-#include "bat/ads/internal/catalog/catalog_issuers_info.h"
 #include "bat/ads/internal/catalog/catalog_version.h"
 #include "bat/ads/internal/logging.h"
 #include "bat/ads/internal/logging_util.h"
@@ -70,10 +70,11 @@ void AdServer::Fetch() {
 
   GetCatalogUrlRequestBuilder url_request_builder;
   mojom::UrlRequestPtr url_request = url_request_builder.Build();
-  BLOG(5, UrlRequestToString(url_request));
+  BLOG(6, UrlRequestToString(url_request));
   BLOG(7, UrlRequestHeadersToString(url_request));
 
-  auto callback = std::bind(&AdServer::OnFetch, this, std::placeholders::_1);
+  const auto callback =
+      std::bind(&AdServer::OnFetch, this, std::placeholders::_1);
   AdsClientHelper::Get()->UrlRequest(std::move(url_request), callback);
 }
 

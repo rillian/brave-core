@@ -17,6 +17,7 @@
 #include "bat/ads/internal/account/account.h"
 #include "bat/ads/internal/account/ad_rewards/ad_rewards_util.h"
 #include "bat/ads/internal/account/confirmations/confirmations_state.h"
+#include "bat/ads/internal/account/wallet/wallet_info.h"
 #include "bat/ads/internal/ad_diagnostics/ad_diagnostics.h"
 #include "bat/ads/internal/ad_diagnostics/last_unidle_timestamp_ad_diagnostics_entry.h"
 #include "bat/ads/internal/ad_events/ad_events.h"
@@ -75,7 +76,6 @@ namespace ads {
 
 AdsImpl::AdsImpl(AdsClient* ads_client)
     : ads_client_helper_(std::make_unique<AdsClientHelper>(ads_client)),
-      ad_diagnostics_(std::make_unique<AdDiagnostics>()),
       token_generator_(std::make_unique<privacy::TokenGenerator>()) {
   set(token_generator_.get());
 }
@@ -417,27 +417,27 @@ void AdsImpl::GetAdDiagnostics(GetAdDiagnosticsCallback callback) {
   AdDiagnostics::Get()->GetAdDiagnostics(std::move(callback));
 }
 
-AdContentInfo::LikeAction AdsImpl::ToggleAdThumbUp(
-    const std::string& creative_instance_id,
-    const std::string& creative_set_id,
-    const AdContentInfo::LikeAction& action) {
-  auto like_action = Client::Get()->ToggleAdThumbUp(creative_instance_id,
-                                                    creative_set_id, action);
+AdContentInfo::LikeAction AdsImpl::ToggleAdThumbUp(const std::string& json) {
+  AdContentInfo ad_content;
+  ad_content.FromJson(json);
+
+  auto like_action = Client::Get()->ToggleAdThumbUp(ad_content);
   if (like_action == AdContentInfo::LikeAction::kThumbsUp) {
-    account_->Deposit(creative_instance_id, ConfirmationType::kUpvoted);
+    account_->Deposit(ad_content.creative_instance_id, ad_content.type,
+                      ConfirmationType::kUpvoted);
   }
 
   return like_action;
 }
 
-AdContentInfo::LikeAction AdsImpl::ToggleAdThumbDown(
-    const std::string& creative_instance_id,
-    const std::string& creative_set_id,
-    const AdContentInfo::LikeAction& action) {
-  auto like_action = Client::Get()->ToggleAdThumbDown(creative_instance_id,
-                                                      creative_set_id, action);
+AdContentInfo::LikeAction AdsImpl::ToggleAdThumbDown(const std::string& json) {
+  AdContentInfo ad_content;
+  ad_content.FromJson(json);
+
+  auto like_action = Client::Get()->ToggleAdThumbDown(ad_content);
   if (like_action == AdContentInfo::LikeAction::kThumbsDown) {
-    account_->Deposit(creative_instance_id, ConfirmationType::kDownvoted);
+    account_->Deposit(ad_content.creative_instance_id, ad_content.type,
+                      ConfirmationType::kDownvoted);
   }
 
   return like_action;
@@ -468,7 +468,8 @@ bool AdsImpl::ToggleFlagAd(const std::string& creative_instance_id,
   auto flag_ad = Client::Get()->ToggleFlagAd(creative_instance_id,
                                              creative_set_id, flagged);
   if (flag_ad) {
-    account_->Deposit(creative_instance_id, ConfirmationType::kFlagged);
+    account_->Deposit(creative_instance_id, AdType::kUndefined,
+                      ConfirmationType::kFlagged);
   }
 
   return flag_ad;
@@ -478,6 +479,8 @@ bool AdsImpl::ToggleFlagAd(const std::string& creative_instance_id,
 
 void AdsImpl::set(privacy::TokenGeneratorInterface* token_generator) {
   DCHECK(token_generator);
+
+  ad_diagnostics_ = std::make_unique<AdDiagnostics>();
 
   account_ = std::make_unique<Account>(token_generator_.get());
   account_->AddObserver(this);
@@ -729,7 +732,6 @@ void AdsImpl::OnStatementOfAccountsDidChange() {
 }
 
 void AdsImpl::OnCatalogUpdated(const Catalog& catalog) {
-  account_->SetCatalogIssuers(catalog.GetIssuers());
   account_->TopUpUnblindedTokens();
 
   epsilon_greedy_bandit_resource_->LoadFromCatalog(catalog);
@@ -740,20 +742,23 @@ void AdsImpl::OnDidServeAdNotification(const AdNotificationInfo& ad) {
 }
 
 void AdsImpl::OnAdNotificationViewed(const AdNotificationInfo& ad) {
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kViewed);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kViewed);
 }
 
 void AdsImpl::OnAdNotificationClicked(const AdNotificationInfo& ad) {
   ad_transfer_->set_last_clicked_ad(ad);
 
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kClicked);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kClicked);
 
   epsilon_greedy_bandit_processor_->Process(
       {ad.segment, mojom::AdNotificationEventType::kClicked});
 }
 
 void AdsImpl::OnAdNotificationDismissed(const AdNotificationInfo& ad) {
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kDismissed);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kDismissed);
 
   epsilon_greedy_bandit_processor_->Process(
       {ad.segment, mojom::AdNotificationEventType::kDismissed});
@@ -776,7 +781,8 @@ void AdsImpl::OnNewTabPageAdViewed(const NewTabPageAdInfo& ad) {
     return;
   }
 
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kViewed);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kViewed);
 }
 
 void AdsImpl::OnNewTabPageAdClicked(const NewTabPageAdInfo& ad) {
@@ -786,7 +792,8 @@ void AdsImpl::OnNewTabPageAdClicked(const NewTabPageAdInfo& ad) {
     return;
   }
 
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kClicked);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kClicked);
 }
 
 void AdsImpl::OnNewTabPageAdEventFailed(
@@ -799,13 +806,15 @@ void AdsImpl::OnNewTabPageAdEventFailed(
 }
 
 void AdsImpl::OnPromotedContentAdViewed(const PromotedContentAdInfo& ad) {
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kViewed);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kViewed);
 }
 
 void AdsImpl::OnPromotedContentAdClicked(const PromotedContentAdInfo& ad) {
   ad_transfer_->set_last_clicked_ad(ad);
 
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kClicked);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kClicked);
 }
 
 void AdsImpl::OnPromotedContentAdEventFailed(
@@ -823,13 +832,15 @@ void AdsImpl::OnDidServeInlineContentAd(const InlineContentAdInfo& ad) {
 }
 
 void AdsImpl::OnInlineContentAdViewed(const InlineContentAdInfo& ad) {
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kViewed);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kViewed);
 }
 
 void AdsImpl::OnInlineContentAdClicked(const InlineContentAdInfo& ad) {
   ad_transfer_->set_last_clicked_ad(ad);
 
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kClicked);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kClicked);
 }
 
 void AdsImpl::OnInlineContentAdEventFailed(
@@ -849,7 +860,8 @@ void AdsImpl::OnWillTransferAd(const AdInfo& ad, const base::Time& time) {
 void AdsImpl::OnDidTransferAd(const AdInfo& ad) {
   BLOG(1, "Transferred ad for " << ad.target_url);
 
-  account_->Deposit(ad.creative_instance_id, ConfirmationType::kTransferred);
+  account_->Deposit(ad.creative_instance_id, ad.type,
+                    ConfirmationType::kTransferred);
 }
 
 void AdsImpl::OnCancelledAdTransfer(const AdInfo& ad, const int32_t tab_id) {
@@ -868,6 +880,7 @@ void AdsImpl::OnConversion(
   }
 
   account_->Deposit(conversion_queue_item.creative_instance_id,
+                    conversion_queue_item.ad_type,
                     ConfirmationType::kConversion);
 }
 

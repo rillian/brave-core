@@ -10,23 +10,25 @@
 #include <memory>
 #include <string>
 
-#include "bat/ads/internal/account/account_observer.h"
+#include "base/observer_list.h"
 #include "bat/ads/internal/account/ad_rewards/ad_rewards_delegate.h"
 #include "bat/ads/internal/account/confirmations/confirmations_observer.h"
+#include "bat/ads/internal/tokens/issuers/issuers_delegate.h"
 #include "bat/ads/internal/tokens/redeem_unblinded_payment_tokens/redeem_unblinded_payment_tokens_delegate.h"
 #include "bat/ads/internal/tokens/refill_unblinded_tokens/refill_unblinded_tokens_delegate.h"
-#include "bat/ads/transaction_info.h"
 
 namespace ads {
 
+class AccountObserver;
 class AdRewards;
+class AdType;
 class Confirmations;
 class ConfirmationType;
+class Issuers;
 class RedeemUnblindedPaymentTokens;
 class RefillUnblindedTokens;
 class Statement;
 class Wallet;
-struct CatalogIssuersInfo;
 struct StatementInfo;
 struct WalletInfo;
 
@@ -36,6 +38,7 @@ class TokenGeneratorInterface;
 
 class Account : public AdRewardsDelegate,
                 public ConfirmationsObserver,
+                public IssuersDelegate,
                 public RedeemUnblindedPaymentTokensDelegate,
                 public RefillUnblindedTokensDelegate {
  public:
@@ -50,9 +53,8 @@ class Account : public AdRewardsDelegate,
 
   WalletInfo GetWallet() const;
 
-  void SetCatalogIssuers(const CatalogIssuersInfo& catalog_issuers);
-
   void Deposit(const std::string& creative_instance_id,
+               const AdType& ad_type,
                const ConfirmationType& confirmation_type);
 
   StatementInfo GetStatement(const int64_t from_timestamp,
@@ -67,9 +69,8 @@ class Account : public AdRewardsDelegate,
  private:
   base::ObserverList<AccountObserver> observers_;
 
-  privacy::TokenGeneratorInterface* token_generator_;  // NOT_OWNED
-
   std::unique_ptr<AdRewards> ad_rewards_;
+  std::unique_ptr<Issuers> issuers_;
   std::unique_ptr<Confirmations> confirmations_;
   std::unique_ptr<RedeemUnblindedPaymentTokens>
       redeem_unblinded_payment_tokens_;
@@ -82,25 +83,27 @@ class Account : public AdRewardsDelegate,
   void NotifyWalletDidUpdate(const WalletInfo& wallet) const;
   void NotifyWalletDidChange(const WalletInfo& wallet) const;
   void NotifyInvalidWallet() const;
-  void NotifyCatalogIssuersDidChange(
-      const CatalogIssuersInfo& catalog_issuers) const;
   void NotifyStatementOfAccountsDidChange() const;
 
-  // AdRewardsDelegate implementation
+  // AdRewardsDelegate:
   void OnDidReconcileAdRewards() override;
 
-  // ConfirmationsObserver implementation
-  void OnConfirmAd(const double estimated_redemption_value,
-                   const ConfirmationInfo& confirmation) override;
-  void OnConfirmAdFailed(const ConfirmationInfo& confirmation) override;
+  // IssuersDelegate:
+  void OnDidGetIssuers() override;
+  void OnFailedToGetIssuers() override;
 
-  // RedeemUnblindedPaymentTokensDelegate implementation
+  // ConfirmationsObserver:
+  void OnDidConfirmAd(const double estimated_redemption_value,
+                      const ConfirmationInfo& confirmation) override;
+  void OnFailedToConfirmAd(const ConfirmationInfo& confirmation) override;
+
+  // RedeemUnblindedPaymentTokensDelegate:
   void OnDidRedeemUnblindedPaymentTokens(
       const privacy::UnblindedTokenList unblinded_tokens) override;
   void OnFailedToRedeemUnblindedPaymentTokens() override;
   void OnDidRetryRedeemingUnblindedPaymentTokens() override;
 
-  // RedeemUnblindedTokensDelegate implementation
+  // RedeemUnblindedTokensDelegate:
   void OnDidRefillUnblindedTokens() override;
   void OnCaptchaRequiredToRefillUnblindedTokens(
       const std::string& captcha_id) override;

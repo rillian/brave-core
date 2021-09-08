@@ -8,6 +8,7 @@
 #include "base/check.h"
 #include "bat/ads/confirmation_type.h"
 #include "bat/ads/internal/ad_events/ad_events.h"
+#include "bat/ads/internal/ad_transfer/ad_transfer_observer.h"
 #include "bat/ads/internal/logging.h"
 #include "bat/ads/internal/tab_manager/tab_info.h"
 #include "bat/ads/internal/tab_manager/tab_manager.h"

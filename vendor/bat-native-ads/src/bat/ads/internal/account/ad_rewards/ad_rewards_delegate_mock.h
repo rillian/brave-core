@@ -11,6 +11,8 @@
 
 namespace ads {
 
+class AdRewardsDelegate;
+
 class AdRewardsDelegateMock : public AdRewardsDelegate {
  public:
   AdRewardsDelegateMock();

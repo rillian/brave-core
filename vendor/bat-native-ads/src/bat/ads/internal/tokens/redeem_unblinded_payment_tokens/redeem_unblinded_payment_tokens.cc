@@ -9,7 +9,7 @@
 #include <functional>
 #include <utility>
 
-#include "base/check.h"
+#include "base/check_op.h"
 #include "bat/ads/internal/account/confirmations/confirmations.h"
 #include "bat/ads/internal/account/confirmations/confirmations_state.h"
 #include "bat/ads/internal/ads_client_helper.h"
@@ -41,10 +41,13 @@ const int64_t kExpiredNextTokenRedemptionAfterSeconds =
 
 RedeemUnblindedPaymentTokens::RedeemUnblindedPaymentTokens() = default;
 
-RedeemUnblindedPaymentTokens::~RedeemUnblindedPaymentTokens() = default;
+RedeemUnblindedPaymentTokens::~RedeemUnblindedPaymentTokens() {
+  delegate_ = nullptr;
+}
 
 void RedeemUnblindedPaymentTokens::set_delegate(
     RedeemUnblindedPaymentTokensDelegate* delegate) {
+  DCHECK_EQ(delegate_, nullptr);
   delegate_ = delegate;
 }
 
@@ -89,7 +92,7 @@ void RedeemUnblindedPaymentTokens::Redeem() {
     return;
   }
 
-  BLOG(2, "PUT /v1/confirmation/payment/{payment_id}");
+  BLOG(2, "PUT /v2/confirmation/payment/{payment_id}");
 
   is_processing_ = true;
 
@@ -99,11 +102,11 @@ void RedeemUnblindedPaymentTokens::Redeem() {
   RedeemUnblindedPaymentTokensUrlRequestBuilder url_request_builder(
       wallet_, unblinded_tokens);
   mojom::UrlRequestPtr url_request = url_request_builder.Build();
-  BLOG(5, UrlRequestToString(url_request));
+  BLOG(6, UrlRequestToString(url_request));
   BLOG(7, UrlRequestHeadersToString(url_request));
 
-  auto callback = std::bind(&RedeemUnblindedPaymentTokens::OnRedeem, this,
-                            std::placeholders::_1, unblinded_tokens);
+  const auto callback = std::bind(&RedeemUnblindedPaymentTokens::OnRedeem, this,
+                                  std::placeholders::_1, unblinded_tokens);
   AdsClientHelper::Get()->UrlRequest(std::move(url_request), callback);
 }
 

@@ -58,14 +58,8 @@ class Client {
   const ad_targeting::PurchaseIntentSignalHistoryMap&
   GetPurchaseIntentSignalHistory() const;
 
-  AdContentInfo::LikeAction ToggleAdThumbUp(
-      const std::string& creative_instance_id,
-      const std::string& creative_set_id,
-      const AdContentInfo::LikeAction action);
-  AdContentInfo::LikeAction ToggleAdThumbDown(
-      const std::string& creative_instance_id,
-      const std::string& creative_set_id,
-      const AdContentInfo::LikeAction action);
+  AdContentInfo::LikeAction ToggleAdThumbUp(const AdContentInfo& ad_content);
+  AdContentInfo::LikeAction ToggleAdThumbDown(const AdContentInfo& ad_content);
   AdContentInfo::LikeAction GetLikeActionForSegment(const std::string& segment);
 
   CategoryContentInfo::OptAction ToggleAdOptInAction(

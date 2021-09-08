@@ -9,13 +9,14 @@
 #include <string>
 #include <vector>
 
+#include "base/observer_list.h"
 #include "bat/ads/internal/conversions/conversion_info.h"
-#include "bat/ads/internal/conversions/conversions_observer.h"
 #include "bat/ads/internal/resources/conversions/conversion_id_pattern_info.h"
 #include "bat/ads/internal/timer.h"
 
 namespace ads {
 
+class ConversionsObserver;
 struct AdEventInfo;
 struct ConversionQueueItemInfo;
 struct VerifiableConversionInfo;

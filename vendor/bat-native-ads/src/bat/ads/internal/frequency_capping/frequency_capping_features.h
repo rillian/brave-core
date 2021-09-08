@@ -7,6 +7,7 @@
 #define BRAVE_VENDOR_BAT_NATIVE_ADS_SRC_BAT_ADS_INTERNAL_FREQUENCY_CAPPING_FREQUENCY_CAPPING_FEATURES_H_
 
 #include "base/feature_list.h"
+#include "base/time/time.h"
 
 namespace ads {
 namespace features {

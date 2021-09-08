@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "base/callback.h"
 #include "bat/ads/ad_notification_info.h"
 #include "bat/ads/export.h"
 #include "bat/ads/public/interfaces/ads.mojom.h"
