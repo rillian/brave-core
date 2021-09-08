@@ -58,13 +58,18 @@ class KeyringController : public KeyedService, public mojom::KeyringController {
                                 const std::string& id);
 
   // Account path will be used as key in kAccountMetas
-  static void SetAccountNameForKeyring(PrefService* prefs,
+  static void SetAccountInfoForKeyring(PrefService* prefs,
                                        const std::string& account_path,
-                                       const std::string& name,
+                                       const absl::optional<std::string> name,
+                                       const absl::optional<std::string> address,
                                        const std::string& id);
+
   static std::string GetAccountNameForKeyring(PrefService* prefs,
                                               const std::string& account_path,
                                               const std::string& id);
+  static std::string GetAccountAddressForKeyring(PrefService* prefs,
+                                                const std::string& account_path,
+                                                const std::string& id);
 
   static std::string GetAccountPathByIndex(size_t index);
 
