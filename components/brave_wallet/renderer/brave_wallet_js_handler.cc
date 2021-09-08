@@ -26,6 +26,8 @@
 #include "third_party/blink/public/web/web_script_source.h"
 #include "ui/base/resource/resource_bundle.h"
 
+#include "brave/components/brave_wallet/renderer/eth_request_parser.h"
+
 namespace {
 
 static base::NoDestructor<std::string> g_provider_script("");
@@ -363,6 +365,21 @@ v8::Local<v8::Promise> BraveWalletJSHandler::Request(
         base::BindOnce(&BraveWalletJSHandler::OnAddEthereumChain,
                        base::Unretained(this), std::move(promise_resolver),
                        isolate, std::move(context_old)));
+  } else if (method && *method == kEthSendTransaction) {
+    std::string formed_input;
+    // Hardcode id to 1 as it is unused
+    ALLOW_UNUSED_LOCAL(out_dict->SetIntPath("id", kRequestId));
+    ALLOW_UNUSED_LOCAL(out_dict->SetStringPath("jsonrpc", kRequestJsonRPC));
+    if (!base::JSONWriter::Write(*out_dict, &formed_input))
+      return v8::Local<v8::Promise>();
+
+    std::string from;
+    auto tx_data = ParseEthSendTransactionParams(formed_input, &from);
+    brave_wallet_provider_->AddUnapprovedTransaction(
+        std::move(tx_data), from,
+        base::BindOnce(&BraveWalletJSHandler::OnAddUnapprovedTransaction,
+                       base::Unretained(this), std::move(promise_resolver),
+                       isolate, std::move(context_old)));
   } else {
     std::string formed_input;
     // Hardcode id to 1 as it is unused
@@ -401,6 +418,40 @@ void BraveWalletJSHandler::OnAddEthereumChain(
         &formed_response.value(), context);
   }
 
+  if (success) {
+    ALLOW_UNUSED_LOCAL(resolver->Resolve(context, result));
+  } else {
+    ALLOW_UNUSED_LOCAL(resolver->Reject(context, result));
+  }
+}
+
+void BraveWalletJSHandler::OnAddUnapprovedTransaction(
+    v8::Global<v8::Promise::Resolver> promise_resolver,
+    v8::Isolate* isolate,
+    v8::Global<v8::Context> context_old,
+    bool success,
+    const std::string& tx_meta_id) {
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context = context_old.Get(isolate);
+  v8::Context::Scope context_scope(context);
+  v8::MicrotasksScope microtasks(isolate,
+                                 v8::MicrotasksScope::kDoNotRunMicrotasks);
+  // TODO: Should return the transaction hash, or the zero hash
+  // if the transaction is not yet available
+  std::unique_ptr<base::Value> response;
+  if (success) {
+    base::Value value("0x0");
+    response = brave_wallet::ToProviderResponse(&value, nullptr);
+  } else {
+    base::Value error("error");
+    response = brave_wallet::ToProviderResponse(nullptr, &error);
+  }
+
+  v8::Local<v8::Value> result;
+  result =
+      content::V8ValueConverter::Create()->ToV8Value(response.get(), context);
+
+  v8::Local<v8::Promise::Resolver> resolver = promise_resolver.Get(isolate);
   if (success) {
     ALLOW_UNUSED_LOCAL(resolver->Resolve(context, result));
   } else {

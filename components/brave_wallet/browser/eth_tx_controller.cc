@@ -56,7 +56,7 @@ void EthTxController::AddUnapprovedTransaction(
     mojom::TxDataPtr tx_data,
     const std::string& from,
     AddUnapprovedTransactionCallback callback) {
-  auto tx = EthTransaction::FromTxData(tx_data);
+  auto tx = EthTransaction::FromTxData(tx_data, false);
   if (!tx) {
     std::move(callback).Run(false, "");
     return;
@@ -79,7 +79,7 @@ void EthTxController::AddUnapproved1559Transaction(
     mojom::TxData1559Ptr tx_data,
     const std::string& from,
     AddUnapproved1559TransactionCallback callback) {
-  auto tx = Eip1559Transaction::FromTxData(tx_data);
+  auto tx = Eip1559Transaction::FromTxData(tx_data, false);
   if (!tx) {
     std::move(callback).Run(false, "");
     return;

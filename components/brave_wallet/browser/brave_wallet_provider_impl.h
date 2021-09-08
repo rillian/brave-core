@@ -34,6 +34,7 @@ class BraveWalletProviderImpl final
   BraveWalletProviderImpl& operator=(const BraveWalletProviderImpl&) = delete;
   BraveWalletProviderImpl(
       mojo::PendingRemote<mojom::EthJsonRpcController> rpc_controller,
+      mojo::PendingRemote<mojom::EthTxController> tx_controller,
       std::unique_ptr<BraveWalletProviderDelegate> delegate,
       PrefService* prefs);
   ~BraveWalletProviderImpl() override;
@@ -51,6 +52,14 @@ class BraveWalletProviderImpl final
   void AddEthereumChain(const std::string& json_payload,
                         AddEthereumChainCallback callback) override;
   void OnAddEthereumChain(const std::string& chain_id, bool accepted);
+  void AddUnapprovedTransaction(
+      mojom::TxDataPtr tx_data,
+      const std::string& from,
+      AddUnapprovedTransactionCallback callback) override;
+  void AddUnapproved1559Transaction(
+      mojom::TxData1559Ptr tx_data,
+      const std::string& from,
+      AddUnapproved1559TransactionCallback callback) override;
   void OnGetAllowedAccounts(GetAllowedAccountsCallback callback,
                             bool success,
                             const std::vector<std::string>& accounts);
@@ -66,10 +75,18 @@ class BraveWalletProviderImpl final
   void OnChainApprovalResult(const std::string& chain_id,
                              const std::string& error);
   void OnConnectionError();
+  void OnAddUnapprovedTransaction(AddUnapprovedTransactionCallback callback,
+                                  bool success,
+                                  const std::string& tx_meta_id);
+  void OnAddUnapproved1559Transaction(
+      AddUnapproved1559TransactionCallback callback,
+      bool success,
+      const std::string& tx_meta_id);
 
   std::unique_ptr<BraveWalletProviderDelegate> delegate_;
   mojo::Remote<mojom::EventsListener> events_listener_;
   mojo::Remote<mojom::EthJsonRpcController> rpc_controller_;
+  mojo::Remote<mojom::EthTxController> tx_controller_;
   base::flat_map<std::string, AddEthereumChainCallback> chain_callbacks_;
   mojo::Receiver<mojom::EthJsonRpcControllerObserver> observer_receiver_{this};
   PrefService* prefs_ = nullptr;

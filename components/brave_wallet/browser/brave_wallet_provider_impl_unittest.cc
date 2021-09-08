@@ -16,6 +16,7 @@
 #include "brave/browser/brave_wallet/brave_wallet_provider_delegate_impl.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_utils.h"
 #include "brave/components/brave_wallet/browser/eth_json_rpc_controller.h"
+#include "brave/components/brave_wallet/browser/eth_tx_controller.h"
 #include "brave/components/brave_wallet/browser/keyring_controller.h"
 #include "brave/components/brave_wallet/browser/pref_names.h"
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
@@ -60,16 +61,31 @@ class BraveWalletProviderImplUnitTest : public testing::Test {
  public:
   BraveWalletProviderImplUnitTest() {
     TestingProfile::Builder builder;
-    auto prefs =
+    auto prefs_service =
         std::make_unique<sync_preferences::TestingPrefServiceSyncable>();
-    RegisterUserProfilePrefs(prefs->registry());
-    builder.SetPrefService(std::move(prefs));
+    RegisterUserProfilePrefs(prefs_service->registry());
+    builder.SetPrefService(std::move(prefs_service));
     profile_ = builder.Build();
 
     shared_url_loader_factory_ =
         base::MakeRefCounted<network::WeakWrapperSharedURLLoaderFactory>(
             &url_loader_factory_);
     web_contents_ = factory_.CreateWebContents(profile_.get());
+
+    eth_json_rpc_controller_ = std::make_unique<EthJsonRpcController>(
+        shared_url_loader_factory(), prefs());
+    auto tx_state_manager = std::make_unique<EthTxStateManager>(
+        prefs(), eth_json_rpc_controller_->MakeRemote());
+    auto eth_nonce_tracker = std::make_unique<EthNonceTracker>(
+        tx_state_manager.get(), eth_json_rpc_controller_.get());
+    auto eth_pending_tx_tracker = std::make_unique<EthPendingTxTracker>(
+        tx_state_manager.get(), eth_json_rpc_controller_.get(),
+        eth_nonce_tracker.get());
+    keyring_controller_ = std::make_unique<KeyringController>(prefs());
+    eth_tx_controller_ = std::make_unique<EthTxController>(
+        eth_json_rpc_controller_.get(), keyring_controller_.get(),
+        std::move(tx_state_manager), std::move(eth_nonce_tracker),
+        std::move(eth_pending_tx_tracker), prefs());
   }
 
   ~BraveWalletProviderImplUnitTest() override = default;
@@ -79,12 +95,21 @@ class BraveWalletProviderImplUnitTest : public testing::Test {
   }
 
   content::WebContents* web_contents() { return web_contents_; }
+  KeyringController* keyring_controller() { return keyring_controller_.get(); }
+  EthTxController* eth_tx_controller() { return eth_tx_controller_.get(); }
+  EthJsonRpcController* eth_json_rpc_controller() {
+    return eth_json_rpc_controller_.get();
+  }
 
   content::BrowserContext* browser_context() { return profile_.get(); }
 
   PrefService* prefs() { return profile_->GetPrefs(); }
 
  private:
+  std::unique_ptr<EthJsonRpcController> eth_json_rpc_controller_;
+  std::unique_ptr<KeyringController> keyring_controller_;
+  std::unique_ptr<EthTxController> eth_tx_controller_;
+
   content::BrowserTaskEnvironment browser_task_environment_;
   std::unique_ptr<TestingProfile> profile_;
   content::TestWebContentsFactory factory_;
@@ -94,11 +119,9 @@ class BraveWalletProviderImplUnitTest : public testing::Test {
 };
 
 TEST_F(BraveWalletProviderImplUnitTest, ValidateBrokenPayloads) {
-  brave_wallet::EthJsonRpcController controller(shared_url_loader_factory(),
-                                                prefs());
-
   BraveWalletProviderImpl provider_impl(
-      controller.MakeRemote(),
+      eth_json_rpc_controller()->MakeRemote(),
+      eth_tx_controller()->MakeRemote(),
       std::make_unique<brave_wallet::BraveWalletProviderDelegateImpl>(
           web_contents(), web_contents()->GetMainFrame()),
       prefs());
@@ -130,10 +153,9 @@ TEST_F(BraveWalletProviderImplUnitTest, ValidateBrokenPayloads) {
 }
 
 TEST_F(BraveWalletProviderImplUnitTest, EmptyDelegate) {
-  brave_wallet::EthJsonRpcController controller(shared_url_loader_factory(),
-                                                prefs());
-  BraveWalletProviderImpl provider_impl(controller.MakeRemote(), nullptr,
-                                        prefs());
+  BraveWalletProviderImpl provider_impl(eth_json_rpc_controller()->MakeRemote(),
+                                        eth_tx_controller()->MakeRemote(),
+                                        nullptr, prefs());
   ValidateErrorCode(&provider_impl,
                     R"({"params": [{
         "chainId": "0x111",
@@ -144,10 +166,9 @@ TEST_F(BraveWalletProviderImplUnitTest, EmptyDelegate) {
 }
 
 TEST_F(BraveWalletProviderImplUnitTest, OnAddEthereumChain) {
-  brave_wallet::EthJsonRpcController controller(shared_url_loader_factory(),
-                                                prefs());
   BraveWalletProviderImpl provider_impl(
-      controller.MakeRemote(),
+      eth_json_rpc_controller()->MakeRemote(),
+      eth_tx_controller()->MakeRemote(),
       std::make_unique<brave_wallet::BraveWalletProviderDelegateImpl>(
           web_contents(), web_contents()->GetMainFrame()),
       prefs());
@@ -175,10 +196,9 @@ TEST_F(BraveWalletProviderImplUnitTest, OnAddEthereumChain) {
 
 TEST_F(BraveWalletProviderImplUnitTest,
        OnAddEthereumChainRequestCompletedError) {
-  brave_wallet::EthJsonRpcController controller(shared_url_loader_factory(),
-                                                prefs());
   BraveWalletProviderImpl provider_impl(
-      controller.MakeRemote(),
+      eth_json_rpc_controller()->MakeRemote(),
+      eth_tx_controller()->MakeRemote(),
       std::make_unique<brave_wallet::BraveWalletProviderDelegateImpl>(
           web_contents(), web_contents()->GetMainFrame()),
       prefs());
@@ -208,10 +228,9 @@ TEST_F(BraveWalletProviderImplUnitTest,
 
 TEST_F(BraveWalletProviderImplUnitTest,
        OnAddEthereumChainRequestCompletedSuccess) {
-  brave_wallet::EthJsonRpcController controller(shared_url_loader_factory(),
-                                                prefs());
   BraveWalletProviderImpl provider_impl(
-      controller.MakeRemote(),
+      eth_json_rpc_controller()->MakeRemote(),
+      eth_tx_controller()->MakeRemote(),
       std::make_unique<brave_wallet::BraveWalletProviderDelegateImpl>(
           web_contents(), web_contents()->GetMainFrame()),
       prefs());

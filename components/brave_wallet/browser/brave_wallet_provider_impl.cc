@@ -48,6 +48,7 @@ namespace brave_wallet {
 
 BraveWalletProviderImpl::BraveWalletProviderImpl(
     mojo::PendingRemote<mojom::EthJsonRpcController> rpc_controller,
+    mojo::PendingRemote<mojom::EthTxController> tx_controller,
     std::unique_ptr<BraveWalletProviderDelegate> delegate,
     PrefService* prefs)
     : delegate_(std::move(delegate)), prefs_(prefs), weak_factory_(this) {
@@ -55,6 +56,11 @@ BraveWalletProviderImpl::BraveWalletProviderImpl(
   rpc_controller_.Bind(std::move(rpc_controller));
   DCHECK(rpc_controller_);
   rpc_controller_.set_disconnect_handler(base::BindOnce(
+      &BraveWalletProviderImpl::OnConnectionError, weak_factory_.GetWeakPtr()));
+
+  DCHECK(tx_controller);
+  tx_controller_.Bind(std::move(tx_controller));
+  tx_controller_.set_disconnect_handler(base::BindOnce(
       &BraveWalletProviderImpl::OnConnectionError, weak_factory_.GetWeakPtr()));
 }
 
@@ -149,6 +155,56 @@ void BraveWalletProviderImpl::OnAddEthereumChain(const std::string& chain_id,
   delegate_->ShowBubble();
 }
 
+void BraveWalletProviderImpl::AddUnapprovedTransaction(
+    mojom::TxDataPtr tx_data,
+    const std::string& from,
+    AddUnapprovedTransactionCallback callback) {
+  if (!tx_data) {
+    std::move(callback).Run(false, "");
+    return;
+  }
+  // TODO:CHECK IF AUTHORIZED FROM
+  tx_controller_->AddUnapprovedTransaction(
+      std::move(tx_data), from,
+      base::BindOnce(&BraveWalletProviderImpl::OnAddUnapprovedTransaction,
+                     weak_factory_.GetWeakPtr(), std::move(callback)));
+}
+
+void BraveWalletProviderImpl::AddUnapproved1559Transaction(
+    mojom::TxData1559Ptr tx_data,
+    const std::string& from,
+    AddUnapproved1559TransactionCallback callback) {
+  if (!tx_data) {
+    std::move(callback).Run(false, "");
+    return;
+  }
+  // TODO:CHECK IF AUTHORIZED FROM
+  tx_controller_->AddUnapproved1559Transaction(
+      std::move(tx_data), from,
+      base::BindOnce(&BraveWalletProviderImpl::OnAddUnapproved1559Transaction,
+                     weak_factory_.GetWeakPtr(), std::move(callback)));
+}
+
+void BraveWalletProviderImpl::OnAddUnapprovedTransaction(
+    AddUnapprovedTransactionCallback callback,
+    bool success,
+    const std::string& tx_meta_id) {
+  std::move(callback).Run(success, tx_meta_id);
+  if (success) {
+    delegate_->ShowBubble();
+  }
+}
+
+void BraveWalletProviderImpl::OnAddUnapproved1559Transaction(
+    AddUnapproved1559TransactionCallback callback,
+    bool success,
+    const std::string& tx_meta_id) {
+  std::move(callback).Run(success, tx_meta_id);
+  if (success) {
+    delegate_->ShowBubble();
+  }
+}
+
 void BraveWalletProviderImpl::OnAddEthereumChainRequestCompleted(
     const std::string& chain_id,
     const std::string& error) {
@@ -229,6 +285,7 @@ void BraveWalletProviderImpl::ChainChangedEvent(const std::string& chain_id) {
 
 void BraveWalletProviderImpl::OnConnectionError() {
   rpc_controller_.reset();
+  tx_controller_.reset();
   observer_receiver_.reset();
 }
 

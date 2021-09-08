@@ -76,6 +76,12 @@ class BraveWalletJSHandler : public mojom::EventsListener {
                           v8::Global<v8::Context> context_old,
                           bool success,
                           const std::string& response);
+  void OnAddUnapprovedTransaction(
+      v8::Global<v8::Promise::Resolver> promise_resolver,
+      v8::Isolate* isolate,
+      v8::Global<v8::Context> context_old,
+      bool success,
+      const std::string& meta_tx_id);
   content::RenderFrame* render_frame_;
   mojo::Remote<mojom::BraveWalletProvider> brave_wallet_provider_;
   mojo::Receiver<mojom::EventsListener> receiver_{this};
