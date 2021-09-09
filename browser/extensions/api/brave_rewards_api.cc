@@ -1232,7 +1232,7 @@ ExtensionFunction::ResponseAction
 BraveRewardsUpdateScheduledCaptchaResultFunction::Run() {
 #if BUILDFLAG(BRAVE_ADAPTIVE_CAPTCHA_ENABLED)
   auto params(
-      brave_rewards::UpdateScheduledCaptchaResult::Params::Create(*args_));
+      brave_rewards::UpdateScheduledCaptchaResult::Params::Create(args()));
   EXTENSION_FUNCTION_VALIDATE(params.get());
 
   Profile* profile = Profile::FromBrowserContext(browser_context());
