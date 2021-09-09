@@ -183,6 +183,12 @@ void BraveVpnServiceDesktop::CheckPurchasedStatus() {
   NOTIMPLEMENTED();
 }
 
+void BraveVpnServiceDesktop::ToggleConnection() {
+  const bool can_disconnect = (state_ == ConnectionState::CONNECTED ||
+                               state_ == ConnectionState::CONNECTING);
+  can_disconnect ? Disconnect() : Connect();
+}
+
 void BraveVpnServiceDesktop::AddObserver(Observer* observer) {
   observers_.AddObserver(observer);
 }

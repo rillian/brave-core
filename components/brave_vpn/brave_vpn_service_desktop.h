@@ -28,9 +28,9 @@ class BraveVpnServiceDesktop
  public:
   class Observer : public base::CheckedObserver {
    public:
-    virtual void OnConnectionStateChanged(ConnectionState state) = 0;
-    virtual void OnConnectionCreated() = 0;
-    virtual void OnConnectionRemoved() = 0;
+    virtual void OnConnectionStateChanged(ConnectionState state) {}
+    virtual void OnConnectionCreated() {}
+    virtual void OnConnectionRemoved() {}
 
    protected:
     ~Observer() override = default;
@@ -49,8 +49,11 @@ class BraveVpnServiceDesktop
   void RemoveObserver(Observer* observer);
 
   bool is_connected() const { return state_ == ConnectionState::CONNECTED; }
-  void CheckPurchasedStatus();
   bool is_purchased_user() const { return is_purchased_user_; }
+  ConnectionState connection_state() const { return state_; }
+
+  void CheckPurchasedStatus();
+  void ToggleConnection();
 
   void BindInterface(
       mojo::PendingReceiver<brave_vpn::mojom::ServiceHandler> receiver);

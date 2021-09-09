@@ -18,6 +18,7 @@ void ShowWalletBubble(Browser* browser);
 void CloseWalletBubble(Browser* browser);
 void MaybeDistillAndShowSpeedreaderBubble(Browser* browser);
 void ShowBraveVPNBubble(Browser* browser);
+void ToggleBraveVPNButton(Browser* browser);
 
 }  // namespace brave
 
