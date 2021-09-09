@@ -91,6 +91,13 @@ export function createHost (): Host {
       stateManager.update({ externalWalletInfo })
     },
 
+    tipFinished (result: number) {
+      stateManager.update({
+        tipResult: result,
+        tipAmount: 17
+      })
+    },
+
     publisherBannerUpdated (publisherInfo: PublisherInfo) {
       stateManager.update({ publisherInfo })
     },
@@ -234,11 +241,6 @@ export function createHost (): Host {
         amount,
         kind === 'monthly' ? true : false
       ])
-
-      stateManager.update({
-        tipProcessed: true,
-        tipAmount: amount
-      })
     },
 
     shareTip (target: ShareTarget) {

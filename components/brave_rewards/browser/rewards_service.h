@@ -133,6 +133,8 @@ using GetBraveWalletCallback =
 using GetWalletPassphraseCallback =
     base::OnceCallback<void(const std::string&)>;
 
+using OnTipCallback = base::OnceCallback<void(ledger::type::Result)>;
+
 class RewardsService : public KeyedService {
  public:
   RewardsService();
@@ -215,10 +217,10 @@ class RewardsService : public KeyedService {
       GetAutoContributionAmountCallback callback) = 0;
   virtual void GetPublisherBanner(const std::string& publisher_id,
                                   GetPublisherBannerCallback callback) = 0;
-  virtual void OnTip(
-      const std::string& publisher_key,
-      const double amount,
-      const bool recurring) = 0;
+  virtual void OnTip(const std::string& publisher_key,
+                     double amount,
+                     bool recurring,
+                     OnTipCallback callback) = 0;
 
   // Used in importer from muon days
   virtual void OnTip(

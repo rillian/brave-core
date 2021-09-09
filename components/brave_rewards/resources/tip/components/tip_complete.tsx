@@ -26,6 +26,7 @@ function getNextContribution (reconcileDate: Date | undefined) {
 }
 
 interface Props {
+  tipResult: boolean
   tipKind: TipKind
   tipAmount: number
 }
@@ -96,7 +97,7 @@ export function TipComplete (props: Props) {
       <style.root>
         <style.main>
           <style.header>
-            {getString('thanksForTheSupport')}
+            {props.tipResult ? getString('thanksForTheSupport') : 'That didn\'t work!'}
           </style.header>
           <style.message>
             {

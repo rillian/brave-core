@@ -115,7 +115,7 @@ export interface HostState {
   autoContributeAmount?: number
   currentMonthlyTip?: number
   showOnboarding?: boolean
-  tipProcessed?: boolean
+  tipResult?: number
   tipAmount?: number
 }
 

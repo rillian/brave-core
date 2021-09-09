@@ -2489,13 +2489,13 @@ void RewardsServiceImpl::OnTipPublisherSaved(
     return;
   }
 
-  OnTip(publisher_key, amount, recurring);
+  OnTip(publisher_key, amount, recurring, base::DoNothing());
 }
 
-void RewardsServiceImpl::OnTip(
-    const std::string& publisher_key,
-    const double amount,
-    const bool recurring) {
+void RewardsServiceImpl::OnTip(const std::string& publisher_key,
+                               double amount,
+                               bool recurring,
+                               OnTipCallback callback) {
   if (!Connected()) {
     return;
   }
@@ -2505,7 +2505,7 @@ void RewardsServiceImpl::OnTip(
     return;
   }
 
-  bat_ledger_->OneTimeTip(publisher_key, amount, base::DoNothing());
+  bat_ledger_->OneTimeTip(publisher_key, amount, std::move(callback));
 }
 
 bool RewardsServiceImpl::Connected() const {

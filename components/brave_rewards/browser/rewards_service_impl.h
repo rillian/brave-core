@@ -280,10 +280,10 @@ class RewardsServiceImpl : public RewardsService,
       const bool recurring,
       ledger::type::PublisherInfoPtr publisher) override;
 
-  void OnTip(
-      const std::string& publisher_key,
-      const double amount,
-      const bool recurring) override;
+  void OnTip(const std::string& publisher_key,
+             double amount,
+             bool recurring,
+             OnTipCallback callback) override;
 
   void SetPublisherMinVisitTime(int duration_in_seconds) const override;
 

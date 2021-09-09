@@ -81,7 +81,7 @@ export function TipForm () {
     host.state.externalWalletInfo)
 
   const [tipAmount, setTipAmount] = React.useState(0)
-  const [tipProcessed, setTipProcessed] = React.useState(false)
+  const [tipResult, setTipResult] = React.useState<number>()
   const [wasMonthlySelected, setWasMonthlySelected] = React.useState(false)
 
   const [tipKind, setTipKind] = React.useState<TipKind>(() => {
@@ -91,7 +91,7 @@ export function TipForm () {
 
   React.useEffect(() => {
     return host.addListener((state) => {
-      setTipProcessed(Boolean(state.tipProcessed))
+      setTipResult(state.tipResult)
       setTipAmount(state.tipAmount || 0)
       setRewardsParameters(state.rewardsParameters)
       setPublisherInfo(state.publisherInfo)
@@ -108,8 +108,8 @@ export function TipForm () {
     return <style.loading />
   }
 
-  if (tipProcessed) {
-    return <TipComplete tipKind={tipKind} tipAmount={tipAmount} />
+  if (tipResult !== undefined) {
+    return <TipComplete tipResult={!tipResult} tipKind={tipKind} tipAmount={tipAmount} />
   }
 
   if (showTour) {

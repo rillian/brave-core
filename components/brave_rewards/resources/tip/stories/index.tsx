@@ -91,7 +91,7 @@ function createHostState (): HostState {
     adsPerHour: 3,
     autoContributeAmount: 15,
     showOnboarding: false,
-    tipProcessed: false,
+    tipResult: undefined,
     currentMonthlyTip: 0
   }
 }

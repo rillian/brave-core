@@ -388,10 +388,12 @@ void BatLedgerImpl::OneTimeTip(
   // deleted in OnOneTimeTip
   auto* holder = new CallbackHolder<OneTimeTipCallback>(
     AsWeakPtr(), std::move(callback));
-  ledger_->OneTimeTip(
-      publisher_key,
-      amount,
-      std::bind(BatLedgerImpl::OnOneTimeTip, holder, _1));
+  auto cb = std::bind(BatLedgerImpl::OnOneTimeTip, holder, _1);
+  cb(ledger::type::Result::LEDGER_ERROR);
+  //ledger_->OneTimeTip(
+  //    publisher_key,
+  //    amount,
+  //    std::bind(BatLedgerImpl::OnOneTimeTip, holder, _1));
 }
 
 // static
