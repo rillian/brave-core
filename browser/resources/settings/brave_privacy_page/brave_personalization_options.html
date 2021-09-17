@@ -46,6 +46,14 @@
         sub-label="$i18n{p3aEnabledDesc}"
         on-settings-boolean-control-change="onP3AEnabledChange_">
     </settings-toggle-button>
+    <settings-toggle-button id="variationsEnabled"
+        class="cr-row"
+        pref=""
+        checked="[[variationsEnabled_]]"
+        label="$i18n{variationsEnableTitle}"
+        sub-label="$i18n{variationsEnabledDesc}"
+        on-settings-boolean-control-change="onVariationsEnabledChange_">
+    </settings-toggle-button>
     <settings-toggle-button id="statsUsagePingEnabled"
         class="cr-row"
         pref=""
