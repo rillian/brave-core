@@ -13,6 +13,8 @@ source_set("brave_base") {
   sources = [
     "random.cc",
     "random.h",
+    "sequence.cc",
+    "sequence.h",
   ]
 
   deps = [

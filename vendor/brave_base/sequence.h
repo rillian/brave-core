@@ -1,0 +1,38 @@
+/* Copyright (c) 2021 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include <cstdint>
+
+#include "base/rand_util.h"
+
+namespace brave_base {
+namespace random {
+
+// An explicitly-seeded pseudo-random sequence generator for farbling.
+class DeterministicSequence {
+ public:
+  // Require an explict seed in the constructor so we can produce
+  // a pseudorandom sequence for repeatable perturbation of data.
+  //
+  // This class makes no calls to obtain actual randomness,
+  // e.g. from system entropy, and should never be used where
+  // unpredictability is important.
+  explicit DeterministicSequence(uint64_t seed);
+
+  // Return the next element in the sequence.
+  uint64_t next();
+
+  // Reset the sequence to the beginning.
+  void reset();
+
+ private:
+  // Wrap the generator to block entropy seeding and allow
+  // construction for our semantic use case.
+  base::InsecureRandomGenerator prng;
+  uint64_t seed_;
+};
+
+}  // namespace random
+}  // namespace brave_base
