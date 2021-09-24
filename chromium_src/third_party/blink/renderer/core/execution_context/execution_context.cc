@@ -8,6 +8,7 @@
 #include "base/command_line.h"
 #include "base/strings/string_number_conversions.h"
 #include "brave/third_party/blink/renderer/brave_farbling_constants.h"
+#include "brave_base/sequence.h"
 #include "crypto/hmac.h"
 #include "third_party/blink/public/platform/web_content_settings_client.h"
 #include "third_party/blink/renderer/core/dom/document.h"
@@ -25,6 +26,8 @@
 
 namespace {
 
+using brave_base::random::DeterministicSequence;
+
 float Identity(float value, size_t index) {
   return value;
 }
@@ -33,18 +36,17 @@ float ConstantMultiplier(double fudge_factor, float value, size_t index) {
   return value * fudge_factor;
 }
 
-float PseudoRandomSequence(std::mt19937_64* prng,
-                           uint64_t seed,
+float PseudoRandomSequence(DeterministicSequence* prng,
                            float value,
                            size_t index) {
   const double maxUInt64AsDouble = UINT64_MAX;
   if (index == 0) {
     // start of loop, reset to initial seed which was passed in and is based on
     // the domain key
-    *prng = std::mt19937_64(seed);
+    prng->reset();
   }
   // return pseudo-random float between 0 and 0.1
-  return ((*prng)() / maxUInt64AsDouble) / 10;
+  return (prng->next() / maxUInt64AsDouble) / 10;
 }
 
 }  // namespace
@@ -141,9 +143,8 @@ AudioFarblingCallback BraveSessionCache::GetAudioFarblingCallback(
       }
       case BraveFarblingLevel::MAXIMUM: {
         uint64_t seed = *reinterpret_cast<uint64_t*>(domain_key_);
-        auto* prng = new std::mt19937_64(seed);
-        return base::BindRepeating(&PseudoRandomSequence, base::Owned(prng),
-                                   seed);
+        auto* prng = new brave_base::random::DeterministicSequence(seed);
+        return base::BindRepeating(&PseudoRandomSequence, base::Owned(prng));
       }
     }
   }

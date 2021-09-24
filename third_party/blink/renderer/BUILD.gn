@@ -11,4 +11,8 @@ source_set("renderer") {
   deps = [
     "//brave/components/brave_drm:brave_drm_blink",
   ]
+
+  public_deps = [
+    "//brave/vendor/brave_base",
+  ]
 }
