@@ -17,12 +17,13 @@ class DeterministicSequence;
 
 // Insert a `friend` declaration in `base::InsecureRandomGenerator`
 // so the class can access private members.
-#define SeedForTesting Unused() const {}\
-  friend class brave_base::random::DeterministicSequence;\
+#define SeedForTesting                                    \
+  Unused() const {}                                       \
+  friend class brave_base::random::DeterministicSequence; \
   void SeedForTesting
 
 #include "../../../base/rand_util.h"
 
 #undef SeedForTesting
 
-#endif // BRAVE_CHROMIUM_SRC_BASE_RAND_UTIL_H_
+#endif  // BRAVE_CHROMIUM_SRC_BASE_RAND_UTIL_H_
