@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef BRAVE_VENDOR_BRAVE_BASE_SEQUENCE_H_
+#define BRAVE_VENDOR_BRAVE_BASE_SEQUENCE_H_
+
 #include <cstdint>
 
 #include "base/rand_util.h"
@@ -36,3 +39,5 @@ class DeterministicSequence {
 
 }  // namespace random
 }  // namespace brave_base
+
+#endif  // BRAVE_VENDOR_BRAVE_BASE_SEQUENCE_H_
