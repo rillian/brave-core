@@ -141,7 +141,7 @@ AudioFarblingCallback BraveSessionCache::GetAudioFarblingCallback(
       }
       case BraveFarblingLevel::MAXIMUM: {
         uint64_t seed = *reinterpret_cast<uint64_t*>(domain_key_);
-        auto prng = std::mt19937_64(seed);
+        auto* prng = new std::mt19937_64(seed);
         return base::BindRepeating(&PseudoRandomSequence, base::Owned(prng),
                                    seed);
       }
