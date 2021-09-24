@@ -33,7 +33,7 @@ float ConstantMultiplier(double fudge_factor, float value, size_t index) {
   return value * fudge_factor;
 }
 
-float PseudoRandomSequence(std::mt19937_64& prng,
+float PseudoRandomSequence(std::mt19937_64* prng,
                            uint64_t seed,
                            float value,
                            size_t index) {
@@ -41,10 +41,10 @@ float PseudoRandomSequence(std::mt19937_64& prng,
   if (index == 0) {
     // start of loop, reset to initial seed which was passed in and is based on
     // the domain key
-    prng = std::mt19937_64(seed);
+    *prng = std::mt19937_64(seed);
   }
   // return pseudo-random float between 0 and 0.1
-  return (prng() / maxUInt64AsDouble) / 10;
+  return ((*prng)() / maxUInt64AsDouble) / 10;
 }
 
 }  // namespace
@@ -142,7 +142,7 @@ AudioFarblingCallback BraveSessionCache::GetAudioFarblingCallback(
       case BraveFarblingLevel::MAXIMUM: {
         uint64_t seed = *reinterpret_cast<uint64_t*>(domain_key_);
         auto prng = std::mt19937_64(seed);
-        return base::BindRepeating(&PseudoRandomSequence, base::OwnedRef(prng),
+        return base::BindRepeating(&PseudoRandomSequence, base::Owned(prng),
                                    seed);
       }
     }
