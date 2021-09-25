@@ -29,7 +29,7 @@ using brave_shields::ControlType;
 
 const char kEmbeddedTestServerDirectory[] = "webaudio";
 const char kTitleScript[] = "domAutomationController.send(document.title);";
-const char kExpectedWebAudioFarblingSum[] = "399";
+const char kExpectedWebAudioFarblingSum[] = "403";
 
 class BraveWebAudioFarblingBrowserTest : public InProcessBrowserTest {
  public:
