@@ -439,6 +439,7 @@ void RewardsServiceImpl::OnPreferenceChanged(const std::string& key) {
       p3a::RecordRewardsDisabledForSomeMetrics();
       p3a::RecordWalletState({.wallet_created = true});
     }
+    p3a::RecordRewardsEnabledDuration(profile_->GetPrefs(), IsRewardsEnabled());
   }
 }
 

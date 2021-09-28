@@ -180,6 +180,53 @@ double CalcWalletBalance(base::flat_map<std::string, double> wallets,
   return balance_minus_grant;
 }
 
+void RecordRewardsEnabledDuration(PrefService* prefs, bool rewards_enabled) {
+  auto enabled_timestamp = prefs->GetTime(prefs::kEnabledTimestamp);
+  auto value = RewardsEnabledDuration::kNever;
+
+  if (enabled_timestamp.is_null()) {
+    // No previous timestamp, so record one of the non-duration states.
+    if (!rewards_enabled) {
+      // Rewards have been disabled with no previous timestamp.
+      // Probably they've been on since we started measuring.
+      // Ignore this interval since we can't measure it and treat it
+      // the same as never having enabled.
+      value = RewardsEnabledDuration::kNever;
+    } else {
+      // Rewards have been enabled.
+      // Remember when so we can measure the duration on later changes.
+      prefs->SetTime(prefs::kEnabledTimestamp, base::Time::Now());
+      value = RewardsEnabledDuration::kStillEnabled;
+    }
+  } else {
+    // Previous timestamp available.
+    if (!rewards_enabled) {
+      // Rewards have been disabled. Null the timestamp so we're ready for
+      // a fresh measurement.
+      prefs->SetTime(prefs::kEnabledTimestamp, base::Time());
+    } else {
+      // Rewards were turned off, record the duration they were on.
+      // Set the threshold at two units so each bin represents the
+      // nominal value as an order-of-magnitude: more than two days
+      // is a week, more than two weeks is a month, and so on.
+      auto duration = base::Time::Now() - enabled_timestamp;
+      if (duration < base::TimeDelta::FromHours(2)) {
+        value = RewardsEnabledDuration::kHours;
+      } else if (duration < base::TimeDelta::FromDays(2)) {
+        value = RewardsEnabledDuration::kDays;
+      } else if (duration < base::TimeDelta::FromDays(2*7)) {
+        value = RewardsEnabledDuration::kWeeks;
+      } else if (duration < base::TimeDelta::FromDays(2*30.44)) {
+        value = RewardsEnabledDuration::kMonths;
+      } else {
+        value = RewardsEnabledDuration::kLonger;
+      }
+    }
+  }
+
+  UMA_HISTOGRAM_ENUMERATION("Brave.Rewards.EnabledDuration", value);
+}
+
 void ExtractAndLogStats(const base::DictionaryValue& dict) {
   const base::Value* probi_value =
       dict.FindPath({"walletProperties", "probi_"});
