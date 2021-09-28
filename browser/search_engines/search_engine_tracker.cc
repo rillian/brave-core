@@ -44,6 +44,40 @@ void RecordSearchEngineP3A(const GURL& search_engine_url,
   UMA_HISTOGRAM_ENUMERATION(kDefaultSearchEngineMetric, answer);
 }
 
+void RecordSwitchP3A(const GURL& to_url, const GURL& from_url) {
+  auto answer = SearchEngineSwitchP3A::kNoSwitch;
+
+  auto to = to_url.host_piece();
+  auto from = from_url.host_piece();
+  auto ncase = base::CompareCase::INSENSITIVE_ASCII;
+  if (base::EndsWith(from, "brave.com", ncase)) {
+    // Switching away from Brave Search.
+    if (base::EndsWith(to, "brave.com", ncase)) {
+      answer = SearchEngineSwitchP3A::kBraveToBrave;
+    } else if (base::EndsWith(to, "google.com", ncase)) {
+      answer = SearchEngineSwitchP3A::kBraveToGoogle;
+    } else if (base::EndsWith(to, "duckduckgo.com", ncase)) {
+      answer = SearchEngineSwitchP3A::kBraveToDDG;
+    } else {
+      answer = SearchEngineSwitchP3A::kBraveToOther;
+    }
+  } else if (base::EndsWith(to, "brave.com", ncase)) {
+    // Switching to Brave Search.
+    if (base::EndsWith(from, "google.com", ncase)) {
+      answer = SearchEngineSwitchP3A::kGoogleToBrave;
+    } else if (base::EndsWith(from, "duckduckgo.com", ncase)) {
+      answer = SearchEngineSwitchP3A::kDDGToBrave;
+    } else {
+      answer = SearchEngineSwitchP3A::kOtherToBrave;
+    }
+  } else {
+    // Any other transition.
+    answer = SearchEngineSwitchP3A::kOtherToOther;
+  }
+
+  UMA_HISTOGRAM_ENUMERATION(kSwitchSearchEngineMetric, answer);
+}
+
 }  // namespace
 
 // static
@@ -105,6 +139,7 @@ void SearchEngineTracker::OnTemplateURLServiceChanged() {
     const GURL& url = template_url->GenerateSearchURL(search_terms);
     if (url != default_search_url_) {
       RecordSearchEngineP3A(url, template_url->GetEngineType(search_terms));
+      RecordSwitchP3A(url, default_search_url_);
     }
   }
 }
