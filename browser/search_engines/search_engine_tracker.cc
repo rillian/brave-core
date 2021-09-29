@@ -44,28 +44,25 @@ void RecordSearchEngineP3A(const GURL& search_engine_url,
   UMA_HISTOGRAM_ENUMERATION(kDefaultSearchEngineMetric, answer);
 }
 
-void RecordSwitchP3A(const GURL& to_url, const GURL& from_url) {
+void RecordSwitchP3A(const GURL& to, const GURL& from) {
   auto answer = SearchEngineSwitchP3A::kNoSwitch;
 
-  auto to = to_url.host_piece();
-  auto from = from_url.host_piece();
-  auto ncase = base::CompareCase::INSENSITIVE_ASCII;
-  if (base::EndsWith(from, "brave.com", ncase)) {
+  if (from.DomainIs("brave.com")) {
     // Switching away from Brave Search.
-    if (base::EndsWith(to, "brave.com", ncase)) {
+    if (to.DomainIs("brave.com")) {
       answer = SearchEngineSwitchP3A::kBraveToBrave;
-    } else if (base::EndsWith(to, "google.com", ncase)) {
+    } else if (to.DomainIs("google.com")) {
       answer = SearchEngineSwitchP3A::kBraveToGoogle;
-    } else if (base::EndsWith(to, "duckduckgo.com", ncase)) {
+    } else if (to.DomainIs("duckduckgo.com")) {
       answer = SearchEngineSwitchP3A::kBraveToDDG;
     } else {
       answer = SearchEngineSwitchP3A::kBraveToOther;
     }
-  } else if (base::EndsWith(to, "brave.com", ncase)) {
+  } else if (to.DomainIs("brave.com")) {
     // Switching to Brave Search.
-    if (base::EndsWith(from, "google.com", ncase)) {
+    if (from.DomainIs("google.com")) {
       answer = SearchEngineSwitchP3A::kGoogleToBrave;
-    } else if (base::EndsWith(from, "duckduckgo.com", ncase)) {
+    } else if (from.DomainIs("duckduckgo.com")) {
       answer = SearchEngineSwitchP3A::kDDGToBrave;
     } else {
       answer = SearchEngineSwitchP3A::kOtherToBrave;
