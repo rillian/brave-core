@@ -44,14 +44,16 @@ void RecordSearchEngineP3A(const GURL& search_engine_url,
   UMA_HISTOGRAM_ENUMERATION(kDefaultSearchEngineMetric, answer);
 }
 
-void RecordSwitchP3A(const GURL& to, const GURL& from) {
-  auto answer = SearchEngineSwitchP3A::kNoSwitch;
+SearchEngineSwitchP3A SearchEngineSwitchP3AMapAnswer(const GURL& to,
+                                                     const GURL& from) {
+  SearchEngineSwitchP3A answer;
+
+  DCHECK(from.is_valid());
+  DCHECK(to.is_valid());
 
   if (from.DomainIs("brave.com")) {
     // Switching away from Brave Search.
-    if (to.DomainIs("brave.com")) {
-      answer = SearchEngineSwitchP3A::kBraveToBrave;
-    } else if (to.DomainIs("google.com")) {
+    if (to.DomainIs("google.com")) {
       answer = SearchEngineSwitchP3A::kBraveToGoogle;
     } else if (to.DomainIs("duckduckgo.com")) {
       answer = SearchEngineSwitchP3A::kBraveToDDG;
@@ -72,7 +74,7 @@ void RecordSwitchP3A(const GURL& to, const GURL& from) {
     answer = SearchEngineSwitchP3A::kOtherToOther;
   }
 
-  UMA_HISTOGRAM_ENUMERATION(kSwitchSearchEngineMetric, answer);
+  return answer;
 }
 
 }  // namespace
@@ -120,7 +122,9 @@ SearchEngineTracker::SearchEngineTracker(
     const GURL url = template_url->GenerateSearchURL(search_terms);
     if (!url.is_empty()) {
       default_search_url_ = url;
+      previous_search_url_ = url;
       RecordSearchEngineP3A(url, template_url->GetEngineType(search_terms));
+      RecordSwitchP3A(url);
     }
   }
 }
@@ -136,7 +140,18 @@ void SearchEngineTracker::OnTemplateURLServiceChanged() {
     const GURL& url = template_url->GenerateSearchURL(search_terms);
     if (url != default_search_url_) {
       RecordSearchEngineP3A(url, template_url->GetEngineType(search_terms));
-      RecordSwitchP3A(url, default_search_url_);
     }
+    RecordSwitchP3A(url);
   }
+}
+
+void SearchEngineTracker::RecordSwitchP3A(const GURL& url) {
+  auto answer = SearchEngineSwitchP3A::kNoSwitch;
+
+  if (url.is_valid() && url != previous_search_url_) {
+    answer = SearchEngineSwitchP3AMapAnswer(url, previous_search_url_);
+    previous_search_url_ = url;
+  }
+
+  UMA_HISTOGRAM_ENUMERATION(kSwitchSearchEngineMetric, answer);
 }

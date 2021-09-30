@@ -36,7 +36,6 @@ enum class SearchEngineP3A {
 
 enum class SearchEngineSwitchP3A {
   kNoSwitch,
-  kBraveToBrave,
   kBraveToGoogle,
   kBraveToDDG,
   kBraveToOther,
@@ -83,8 +82,11 @@ class SearchEngineTracker : public KeyedService,
   base::ScopedObservation<TemplateURLService, TemplateURLServiceObserver>
       observer_{this};
 
+  void RecordSwitchP3A(const GURL& url);
+
   // Keeping this to check for changes in |OnTemplateURLServiceChanged|.
   GURL default_search_url_;
+  GURL previous_search_url_;
 
   TemplateURLService* template_url_service_;
 };
