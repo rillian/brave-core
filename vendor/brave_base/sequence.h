@@ -25,6 +25,7 @@ class DeterministicSequence {
   explicit DeterministicSequence(uint64_t seed);
 
   // Return the next element in the sequence.
+  uint64_t operator()();
   uint64_t next();
 
   // Reset the sequence to the beginning.

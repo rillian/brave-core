@@ -21,6 +21,10 @@ uint64_t DeterministicSequence::next() {
   return prng.RandUint64();
 }
 
+uint64_t DeterministicSequence::operator()() {
+  return next();
+}
+
 void DeterministicSequence::reset() {
   // Reset the sequence to the beginning.
   prng.SeedForTesting(seed_);
