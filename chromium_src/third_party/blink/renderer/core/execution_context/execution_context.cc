@@ -192,7 +192,7 @@ void BraveSessionCache::PerturbPixelsInternal(const unsigned char* data,
   uint8_t canvas_key[32];
   CHECK(h.Sign(base::StringPiece(reinterpret_cast<const char*>(pixels), size),
                canvas_key, sizeof canvas_key));
-  auto prng = std::mt19937_64(*reinterpret_cast<uint64_t*>(canvas_key));
+  auto prng = ::DeterministicSequence(*reinterpret_cast<uint64_t*>(canvas_key));
   uint64_t pixel_index;
   // choose which channel (R, G, or B) to perturb
   uint8_t channel;
@@ -220,7 +220,7 @@ WTF::String BraveSessionCache::GenerateRandomString(std::string seed,
                sizeof domain_key_));
   CHECK(h.Sign(seed, key, sizeof key));
   // initial PRNG seed based on session key and passed-in seed string
-  auto prng = std::mt19937_64(*reinterpret_cast<uint64_t*>(key));
+  auto prng = ::DeterministicSequence(*reinterpret_cast<uint64_t*>(key));
   UChar* destination;
   WTF::String value = WTF::String::CreateUninitialized(length, destination);
   for (wtf_size_t i = 0; i < length; i++) {
