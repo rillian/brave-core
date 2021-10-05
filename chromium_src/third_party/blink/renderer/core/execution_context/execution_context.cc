@@ -231,7 +231,7 @@ WTF::String BraveSessionCache::GenerateRandomString(std::string seed,
 }
 
 WTF::String BraveSessionCache::FarbledUserAgent(WTF::String real_user_agent) {
-  std::mt19937_64 prng = MakePseudoRandomGenerator();
+  ::DeterministicSequence prng = MakePseudoRandomGenerator();
   WTF::StringBuilder result;
   result.Append(real_user_agent);
   int extra = prng() % kFarbledUserAgentMaxExtraSpaces;
@@ -240,9 +240,9 @@ WTF::String BraveSessionCache::FarbledUserAgent(WTF::String real_user_agent) {
   return result.ToString();
 }
 
-std::mt19937_64 BraveSessionCache::MakePseudoRandomGenerator() {
+::DeterministicSequence BraveSessionCache::MakePseudoRandomGenerator() {
   uint64_t seed = *reinterpret_cast<uint64_t*>(domain_key_);
-  return std::mt19937_64(seed);
+  return ::DeterministicSequence(seed);
 }
 
 }  // namespace brave

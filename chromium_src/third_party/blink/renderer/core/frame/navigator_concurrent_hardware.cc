@@ -3,9 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include <random>
-
 #include "base/system/sys_info.h"
+#include "brave_base/sequence.h"
 #include "brave/third_party/blink/renderer/brave_farbling_constants.h"
 #include "third_party/blink/public/platform/web_content_settings_client.h"
 #include "third_party/blink/renderer/core/execution_context/execution_context.h"
@@ -46,7 +45,7 @@ unsigned FarbleNumberOfProcessors(ExecutionContext* context) {
       U_FALLTHROUGH;
     }
     case BraveFarblingLevel::BALANCED: {
-      std::mt19937_64 prng =
+      brave_base::random::DeterministicSequence prng =
           BraveSessionCache::From(*context).MakePseudoRandomGenerator();
       farbled_value =
           kFakeMinProcessors + (prng() % (true_value + 1 - kFakeMinProcessors));

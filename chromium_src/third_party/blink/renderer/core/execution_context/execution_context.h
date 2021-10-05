@@ -8,13 +8,17 @@
 
 #include "../../../../../../../third_party/blink/renderer/core/execution_context/execution_context.h"
 
-#include <random>
-
 #include "base/callback.h"
 
 namespace blink {
 class WebContentSettingsClient;
 }  // namespace blink
+
+namespace brave_base {
+namespace random {
+class DeterministicSequence;
+}  // namespace random
+}  // namespace brave_base
 
 using blink::ExecutionContext;
 using blink::GarbageCollected;
@@ -46,7 +50,7 @@ class CORE_EXPORT BraveSessionCache final
                      size_t size);
   WTF::String GenerateRandomString(std::string seed, wtf_size_t length);
   WTF::String FarbledUserAgent(WTF::String real_user_agent);
-  std::mt19937_64 MakePseudoRandomGenerator();
+  brave_base::random::DeterministicSequence MakePseudoRandomGenerator();
 
  private:
   bool farbling_enabled_;

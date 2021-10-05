@@ -5,6 +5,7 @@
 
 #include "third_party/blink/renderer/modules/webgl/webgl2_rendering_context_base.h"
 #include "brave/components/content_settings/renderer/brave_content_settings_agent_impl_helper.h"
+#include "brave_base/sequence.h"
 #include "third_party/blink/renderer/bindings/modules/v8/webgl_any.h"
 #include "third_party/blink/renderer/core/execution_context/execution_context.h"
 
@@ -25,7 +26,7 @@ ScriptValue FarbleGLIntParameter(WebGL2RenderingContextBase* owner,
   if (!owner->isContextLost())
     owner->ContextGL()->GetIntegerv(pname, &value);
   if (value > 0) {
-    std::mt19937_64 prng =
+    auto prng =
         brave::BraveSessionCache::From(*ExecutionContext::From(script_state))
             .MakePseudoRandomGenerator();
     prng.discard(discard);
@@ -44,7 +45,7 @@ ScriptValue FarbleGLInt64Parameter(WebGL2RenderingContextBase* owner,
   if (!owner->isContextLost())
     owner->ContextGL()->GetInteger64v(pname, &value);
   if (value > 0) {
-    std::mt19937_64 prng =
+    auto prng =
         brave::BraveSessionCache::From(*ExecutionContext::From(script_state))
             .MakePseudoRandomGenerator();
     prng.discard(discard);

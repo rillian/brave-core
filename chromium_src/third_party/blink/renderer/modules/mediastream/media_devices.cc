@@ -3,9 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include <random>
-
 #include "brave/third_party/blink/renderer/brave_farbling_constants.h"
+#include "brave_base/sequence.h"
 #include "third_party/blink/public/platform/web_content_settings_client.h"
 #include "third_party/blink/renderer/core/execution_context/execution_context.h"
 #include "third_party/blink/renderer/core/frame/local_dom_window.h"
@@ -31,7 +30,7 @@ void FarbleMediaDevices(ExecutionContext* context,
   if (settings->GetBraveFarblingLevel() != BraveFarblingLevel::OFF) {
     // Shuffle the list of plugins pseudo-randomly, based on the
     // domain+session key.
-    std::mt19937_64 prng =
+    auto prng =
         BraveSessionCache::From(*context).MakePseudoRandomGenerator();
     std::shuffle(media_devices->begin(), media_devices->end(), prng);
   }

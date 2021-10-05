@@ -3,9 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include <random>
-
 #include "brave/third_party/blink/renderer/brave_farbling_constants.h"
+#include "brave_base/sequence.h"
 #include "third_party/blink/public/platform/web_content_settings_client.h"
 #include "third_party/blink/renderer/core/execution_context/execution_context.h"
 #include "third_party/blink/renderer/core/frame/local_dom_window.h"
@@ -31,7 +30,7 @@ using WTF::StringBuilder;
 
 namespace brave {
 
-String PluginReplacementName(std::mt19937_64* prng) {
+String PluginReplacementName(brave_base::random::DeterministicSequence* prng) {
   std::vector<String> chrome{"Chrome ", "Chromium ",   "Brave ",
                              "Web ",    "Browser ",    "OpenSource ",
                              "Online ", "JavaScript ", ""};
@@ -70,7 +69,7 @@ void FarblePlugins(DOMPluginArray* owner,
       U_FALLTHROUGH;
     }
     case BraveFarblingLevel::BALANCED: {
-      std::mt19937_64 prng = BraveSessionCache::From(*(frame->DomWindow()))
+      auto prng = BraveSessionCache::From(*(frame->DomWindow()))
                                  .MakePseudoRandomGenerator();
       // The item() method will populate plugin info if any item of
       // |dom_plugins_| is null, but when it tries, it assumes the
