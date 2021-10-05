@@ -24,12 +24,18 @@ class DeterministicSequence {
   // unpredictability is important.
   explicit DeterministicSequence(uint64_t seed);
 
+  // Reset the sequence to the beginning.
+  void reset();
+
   // Return the next element in the sequence.
   uint64_t operator()();
   uint64_t next();
 
-  // Reset the sequence to the beginning.
-  void reset();
+  // Interfaces required for use like a std::random generator.
+  typedef uint64_t result_type;
+  static constexpr result_type min() { return 0; }
+  static constexpr result_type max() { return UINT64_MAX; }
+  void discard(uint64_t count);
 
  private:
   // Wrap the generator to block entropy seeding and allow
