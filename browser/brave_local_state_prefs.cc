@@ -91,6 +91,8 @@ void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
 
 #endif  // BUILDFLAG(BRAVE_P3A_ENABLED)
 
+  registry->RegisterBooleanPref(kVariationsEnabled, true);
+
   brave_shields::RegisterShieldsP3APrefs(registry);
 #if !defined(OS_ANDROID)
   BraveNewTabMessageHandler::RegisterLocalStatePrefs(registry);

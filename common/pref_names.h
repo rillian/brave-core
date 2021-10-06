@@ -23,6 +23,7 @@ extern const char kThresholdCheckMade[];
 extern const char kThresholdQuery[];
 extern const char kWeekOfInstallation[];
 extern const char kStatsReportingEnabled[];
+extern const char kVariationsEnabled[];
 extern const char kWidevineOptedIn[];
 extern const char kAskWidevineInstall[];
 extern const char kUseAlternativeSearchEngineProvider[];

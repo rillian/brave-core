@@ -21,6 +21,7 @@ const char kFirstCheckMade[] = "brave.stats.first_check_made";
 const char kThresholdCheckMade[] = "brave.stats.threshold_check_made";
 // Anonymous usage pings enabled
 const char kStatsReportingEnabled[] = "brave.stats.reporting_enabled";
+const char kVariationsEnabled[] = "brave.variations.enabled";
 // Serialized query for to send to the stats-updater server. Needs to be saved
 // in the case that the user sends the standard usage ping, stops the browser,
 // meets the threshold requirements, and then starts the browser before the

@@ -150,12 +150,12 @@ void BravePrivacyHandler::OnP3AEnabledChanged() {
 }
 #endif
 
-#include <iostream>
-
-void BravePrivacyHandler::GetVariationsEnabled(const base::ListValue* args) {
-  std::cerr << "Variations toggle get: " << args << std::endl;
+void BravePrivacyHandler::SetVariationsEnabled(
+    base::Value::ConstListView args) {
+  SetLocalStateBooleanEnabled(kVariationsEnabled, args);
 }
 
-void BravePrivacyHandler::SetVariationsEnabled(const base::ListValue* args) {
-  std::cerr << "Variations toggle set: " << args << std::endl;
+void BravePrivacyHandler::GetVariationsEnabled(
+    base::Value::ConstListView args) {
+  GetLocalStateBooleanEnabled(kVariationsEnabled, args);
 }
