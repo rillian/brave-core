@@ -28,7 +28,8 @@ Polymer({
 
     webRTCPolicy_: String,
     p3aEnabled_: Boolean,
-    statsUsagePingEnabled_: Boolean
+    statsUsagePingEnabled_: Boolean,
+    variationsEnabled_: Boolean
   },
 
   /** @private {?settings.BravePrivacyBrowserProxy} */
@@ -49,6 +50,9 @@ Polymer({
     });
     this.browserProxy_.getStatsUsagePingEnabled().then(enabled => {
       this.statsUsagePingEnabled_ = enabled;
+    });
+    this.browserProxy_.getVariationsEnabled().then(enabled => {
+      this.variationsEnabled_ = enabled;
     });
     this.addWebUIListener('stats-usage-ping-enabled-changed', (enabled) => {
       this.statsUsagePingEnabled_ = enabled;
