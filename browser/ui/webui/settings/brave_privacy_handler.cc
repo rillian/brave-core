@@ -53,6 +53,16 @@ void BravePrivacyHandler::RegisterMessages() {
       "getP3AEnabled", base::BindRepeating(&BravePrivacyHandler::GetP3AEnabled,
                                            base::Unretained(this)));
 #endif
+
+  web_ui()->RegisterMessageCallback(
+      "getVariationsEnabled",
+      base::BindRepeating(&BravePrivacyHandler::GetVariationsEnabled,
+                          base::Unretained(this)));
+  web_ui()->RegisterMessageCallback(
+      "setVariationsEnabled",
+      base::BindRepeating(&BravePrivacyHandler::SetVariationsEnabled,
+                          base::Unretained(this)));
+
   web_ui()->RegisterMessageCallback(
       "setStatsUsagePingEnabled",
       base::BindRepeating(&BravePrivacyHandler::SetStatsUsagePingEnabled,
@@ -139,3 +149,13 @@ void BravePrivacyHandler::OnP3AEnabledChanged() {
   }
 }
 #endif
+
+#include <iostream>
+
+void BravePrivacyHandler::GetVariationsEnabled(const base::ListValue* args) {
+  std::cerr << "Variations toggle get: " << args << std::endl;
+}
+
+void BravePrivacyHandler::SetVariationsEnabled(const base::ListValue* args) {
+  std::cerr << "Variations toggle set: " << args << std::endl;
+}

@@ -20,6 +20,14 @@ cr.define('settings', function() {
     /**
      * @return {!Promise<string>}
      */
+    getVariationsEnabled() {}
+    /**
+     * @param {boolean} enabled (true/false).
+     */
+    setVariationsEnabled(value) {}
+    /**
+     * @return {!Promise<string>}
+     */
     getStatsUsagePingEnabled() {}
     /**
      * @param {boolean} enabled (true/false).
@@ -42,6 +50,14 @@ cr.define('settings', function() {
 
     setP3AEnabled(value) {
       chrome.send('setP3AEnabled', [value])
+    }
+
+    getVariationsEnabled() {
+      return cr.sendWithPromise('getVariationsEnabled');
+    }
+
+    setVariationsEnabled(value) {
+      chrome.send('setVariationsEnabled', [value])
     }
 
     getStatsUsagePingEnabled() {

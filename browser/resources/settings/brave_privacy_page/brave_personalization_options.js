@@ -62,6 +62,10 @@ Polymer({
     this.browserProxy_.setP3AEnabled(this.$.p3aEnabled.checked);
   },
 
+  onVariationsEnabledChange_: function() {
+    this.browserProxy_.setVariationsEnabled(this.$.variationsEnabled.checked);
+  },
+
   onStatsUsagePingEnabledChange_: function() {
     this.browserProxy_.setStatsUsagePingEnabled(this.$.statsUsagePingEnabled.checked);
   },
