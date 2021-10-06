@@ -46,6 +46,9 @@ class BravePrivacyHandler : public settings::SettingsPageUIHandler {
   void OnP3AEnabledChanged();
 #endif
 
+  void GetVariationsEnabled(const base::ListValue* args);
+  void SetVariationsEnabled(const base::ListValue* args);
+
   Profile* profile_ = nullptr;
   PrefChangeRegistrar local_state_change_registrar_;
 
