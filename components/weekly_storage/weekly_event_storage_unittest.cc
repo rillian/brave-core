@@ -37,7 +37,6 @@ class WeeklyEventStorageTest : public ::testing::Test {
   base::SimpleTestClock* clock_;
   TestingPrefServiceSimple pref_service_;
   std::unique_ptr<WeeklyEventStorage<TestValues>> state_;
-
 };
 
 TEST_F(WeeklyEventStorageTest, StartsEmpty) {
@@ -51,7 +50,8 @@ TEST_F(WeeklyEventStorageTest, AddEvents) {
   EXPECT_EQ(state_->GetLatest(), absl::optional<TestValues>(TestValues::kNull));
 
   state_->Add(TestValues::kBrave);
-  EXPECT_EQ(state_->GetLatest(), absl::optional<TestValues>(TestValues::kBrave));
+  EXPECT_EQ(state_->GetLatest(),
+            absl::optional<TestValues>(TestValues::kBrave));
 }
 
 TEST_F(WeeklyEventStorageTest, ForgetsOldEvents) {

@@ -28,7 +28,8 @@ class PrefService;
 //
 // Parametarized over an `enum class` to get some type checking for the caller.
 // Requires |pref_name| to be already registered.
-template <typename T> class WeeklyEventStorage {
+template <typename T>
+class WeeklyEventStorage {
  public:
   WeeklyEventStorage(PrefService* prefs, const char* pref_name);
 

@@ -9,7 +9,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "absl/types/optional.h"
 #include "base/thread_annotations.h"
 #include "base/time/clock.h"
 #include "base/time/default_clock.h"
@@ -23,7 +22,8 @@ constexpr size_t kDaysInWeek = 7;
 }
 
 template <typename T>
-WeeklyEventStorage<T>::WeeklyEventStorage(PrefService* prefs, const char* pref_name)
+WeeklyEventStorage<T>::WeeklyEventStorage(PrefService* prefs,
+                                          const char* pref_name)
     : prefs_(prefs),
       pref_name_(pref_name),
       clock_(std::make_unique<base::DefaultClock>()) {
@@ -36,8 +36,8 @@ WeeklyEventStorage<T>::WeeklyEventStorage(PrefService* prefs, const char* pref_n
 // Accept an explicit clock so tests can manipulate the passage of time.
 template <typename T>
 WeeklyEventStorage<T>::WeeklyEventStorage(PrefService* prefs,
-                             const char* pref_name,
-                             std::unique_ptr<base::Clock> clock)
+                                          const char* pref_name,
+                                          std::unique_ptr<base::Clock> clock)
     : prefs_(prefs), pref_name_(pref_name), clock_(std::move(clock)) {
   DCHECK(prefs);
   DCHECK(pref_name);
@@ -72,7 +72,6 @@ bool WeeklyEventStorage<T>::HasEvent() {
   return !events_.empty();
 }
 
-
 template <typename T>
 void WeeklyEventStorage<T>::FilterToWeek() {
   if (events_.empty()) {
@@ -98,7 +97,7 @@ void WeeklyEventStorage<T>::Load() {
       continue;
     }
     events_.push_front({base::Time::FromDoubleT(day->GetDouble()),
-                             static_cast<uint64_t>(value->GetDouble())});
+                        static_cast<uint64_t>(value->GetDouble())});
   }
 }
 
