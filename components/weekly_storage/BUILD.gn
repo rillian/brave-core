@@ -4,6 +4,8 @@ static_library("weekly_storage") {
     "daily_storage.h",
     "weekly_storage.cc",
     "weekly_storage.h",
+    "weekly_event_storage.cc",
+    "weekly_event_storage.h",
   ]
 
   deps = [
