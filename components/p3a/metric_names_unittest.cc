@@ -14,15 +14,16 @@
 namespace brave::p3a {
 
 TEST(P3AMetrics, Searchable) {
-  // Check that some expected elements made it into the set.
-  // This set was chosen as likely to be long-lived; it will need
-  // to be updated if any of them are retired.
-  EXPECT_TRUE(kCollectedHistograms.contains("Brave.Core.IsDefault"));
-  EXPECT_TRUE(kCollectedHistograms.contains("Brave.P3A.SentAnswersCount"));
-  EXPECT_TRUE(kCollectedHistograms.contains("Brave.P2A.TotalAdOpportunities"));
+  // Check that some expected elements test as valid.
+  //
+  // These examples were chosen as likely to be long-lived;
+  // they will need to be updated if any of them are retired.
+  EXPECT_TRUE(IsValidMetric("Brave.Core.IsDefault"));
+  EXPECT_TRUE(IsValidMetric("Brave.P3A.SentAnswersCount"));
+  EXPECT_TRUE(IsValidMetric("Brave.P2A.TotalAdOpportunities"));
   // Verify set membership testing isn't returning true unconditionally.
-  EXPECT_FALSE(kCollectedHistograms.contains("Not.A.Brave.Metric"));
-  EXPECT_FALSE(kCollectedHistograms.contains("antimetric"));
+  EXPECT_FALSE(IsValidMetric("Not.A.Brave.Metric"));
+  EXPECT_FALSE(IsValidMetric("antimetric"));
 }
 
 TEST(P3AMetrics, Enumerable) {
